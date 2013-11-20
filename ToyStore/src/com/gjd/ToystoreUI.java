@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.gjd.UI.Admin.AddressManager;
+import com.gjd.UI.Admin.AddressControl;
 import com.gjd.UI.Admin.StoreManager;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Address;
