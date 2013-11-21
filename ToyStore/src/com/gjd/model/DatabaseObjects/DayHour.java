@@ -5,11 +5,11 @@ import java.sql.Time;
 
 public class DayHour implements Serializable
 {
-
 	private static final long serialVersionUID = -3212421679974875839L;
 
 	public static final String DAY_STRING = "MTWRFSU";
 	
+	public static final String CLOSED = "CLOSED";
 	public static final String MONDAY = "Monday";
 	public static final String TUESDAY = "Tuesday";
 	public static final String WEDNESDAY = "Wednesday";
@@ -22,6 +22,8 @@ public class DayHour implements Serializable
 	private char day;
 	private Time open;
 	private Time close;
+	
+	private boolean isNew = false;
 	
 	private String open_string;
 	private String close_string;
@@ -68,13 +70,12 @@ public class DayHour implements Serializable
 	}
 	
 	public String getOpen_string() {
-		return String.format("%02d:%02d", open.getHours(), open.getMinutes());
+		return isClosed() ? CLOSED : String.format("%02d:%02d", open.getHours(), open.getMinutes());
 	}
 	public void setOpen_string(String open_string) {
 		if (open_string.equals("CLOSED"))
 		{
 			open = new Time(0, 0, 0);
-			setClose_string(open_string);
 		}
 		else
 		{
@@ -83,14 +84,13 @@ public class DayHour implements Serializable
 		}
 	}
 	public String getClose_string() {
-		return String.format("%02d:%02d", close.getHours(), close.getMinutes());
+		return isClosed() ? CLOSED :String.format("%02d:%02d", close.getHours(), close.getMinutes());
 	}
 	public void setClose_string(String close_string)
 	{
 		if (close_string.equals("CLOSED"))
 		{
 			close = new Time(0, 0, 0);
-			setOpen_string(close_string);
 		}
 		else
 		{
@@ -103,5 +103,20 @@ public class DayHour implements Serializable
 		this.day = day;
 		this.open = open;
 		this.close = close;
+	}
+	public DayHour(Store store, char day, Time open, Time close, boolean isNew) {
+		this.store = store;
+		this.day = day;
+		this.open = open;
+		this.close = close;
+		this.isNew = isNew;
+	}
+	public boolean isNew() {
+		return isNew;
+	}
+	
+	public String toString()
+	{
+		return getDayString() + ": " + getOpen_string() + " - " + getClose_string();
 	}
 }

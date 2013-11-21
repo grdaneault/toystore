@@ -230,4 +230,37 @@ public class DatabaseConnection {
 			return false;
 		}
 	}
+
+	public boolean saveDayHour(DayHour dh)
+	{
+		try
+		{
+			System.out.println(dh);
+			System.out.println(dh.isNew());
+			PreparedStatement pst;
+			if (dh.isNew())
+			{
+				pst = conn.prepareStatement("INSERT INTO DayHours (store_id, day, open, close) VALUES (?, ?, ?, ?) ");
+				pst.setInt(1, dh.getStore().getId());
+				pst.setString(2, dh.getDay() + "");
+				pst.setTime(3, dh.getOpen());
+				pst.setTime(4, dh.getClose());
+			}
+			else
+			{
+				pst = conn.prepareStatement("UPDATE DayHours SET open = ?, close = ? WHERE store_id = ? AND day = ?");
+				pst.setTime(1, dh.getOpen());
+				pst.setTime(2, dh.getClose());
+				pst.setInt(3, dh.getStore().getId());
+				pst.setString(4, dh.getDay() + "");
+			}
+			
+			return 1 == pst.executeUpdate();
+		} 
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
 }

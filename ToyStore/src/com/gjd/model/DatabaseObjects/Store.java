@@ -62,16 +62,16 @@ public class Store implements Serializable{
 	}
 
 	@SuppressWarnings("deprecation")
-	public void setHours(HashMap<Character, DayHour> hours) {
-		this.hours = hours;
-		for (int i = 0; i < DayHour.DAY_STRING.length(); i++)
-		{
-			if (hours.get(DayHour.DAY_STRING.charAt(i)) == null)
-			{
-				hours.put(DayHour.DAY_STRING.charAt(i), new DayHour(this, DayHour.DAY_STRING.charAt(i), new Time(0, 0, 0), new Time(0, 0, 0)));
-			}
-		}
-	}
+    public void setHours(HashMap<Character, DayHour> hours) {
+            this.hours = hours;
+            for (int i = 0; i < DayHour.DAY_STRING.length(); i++)
+            {
+                    if (hours.get(DayHour.DAY_STRING.charAt(i)) == null)
+                    {
+                            hours.put(DayHour.DAY_STRING.charAt(i), new DayHour(this, DayHour.DAY_STRING.charAt(i), new Time(0, 0, 0), new Time(0, 0, 0), true));
+                    }
+            }
+    }
 
 	public boolean isNew() {
 		return id == -1;

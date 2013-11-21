@@ -72,7 +72,7 @@ public class ToystoreUI extends UI {
 			//layout.addComponent(am);
 			
 			final Store store = DatabaseConnection.getInstance().getStoreById(1);
-			
+			System.out.println(store);
 			StoreManager sm = new StoreManager(store);
 			layout.addComponent(sm);
 			

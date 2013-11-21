@@ -23,10 +23,8 @@ public class StoreManager extends TabSheet implements Serializable{
 	
 	private void buildMainLayout() {
 		storeTitle = new Label(store.getName());
+		System.out.println(store);
 		addTab(storeTitle, "Overview");
-
-
-		
 		addTab(new StoreHoursControl(store), "Hours");
 		addTab(new AddressControl(store.getAddress()), "Address");
 		
