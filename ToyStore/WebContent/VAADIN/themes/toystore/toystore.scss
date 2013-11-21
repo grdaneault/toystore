@@ -9,4 +9,8 @@
   @include reindeer;
 
   /* Insert your theme rules here */
+  
+  .v-table-cell-content {
+	    vertical-align: middle;
+	}
 }

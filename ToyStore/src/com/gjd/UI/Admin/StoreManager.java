@@ -27,7 +27,7 @@ public class StoreManager extends TabSheet implements Serializable{
 		addTab(storeTitle, "Overview");
 		addTab(new StoreHoursControl(store), "Hours");
 		addTab(new AddressManager(store.getAddress()), "Address");
-		addTab(new BrandControl(null), "Brands");
+		addTab(new BrandControl(), "Brands");
 		
 	}
 
