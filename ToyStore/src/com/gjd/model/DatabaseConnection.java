@@ -4,11 +4,13 @@ import java.sql.*;
 import java.util.HashMap;
 
 import com.gjd.model.DatabaseObjects.Address;
+import com.gjd.model.DatabaseObjects.Brand;
 import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.DayHour;
 import com.gjd.model.DatabaseObjects.ProductType;
 import com.gjd.model.DatabaseObjects.Store;
 import com.gjd.model.DatabaseObjects.USState;
+import com.gjd.model.DatabaseObjects.Vendor;
 
 public class DatabaseConnection {
 	
@@ -211,9 +213,10 @@ public class DatabaseConnection {
 				}
 				else
 				{
-					PreparedStatement pst = conn.prepareStatement("UPDATE Store store_name = ?, address_id = ? LIMIT 1");
+					PreparedStatement pst = conn.prepareStatement("UPDATE Store SET store_name = ?, address_id = ? WHERE store_id = ? LIMIT 1");
 					pst.setString(1, s.getName());
 					pst.setInt(2, s.getAddress().getId());
+					pst.setInt(3, s.getId());
 					
 					int rows = pst.executeUpdate();
 					return rows == 1;
@@ -256,6 +259,102 @@ public class DatabaseConnection {
 			}
 			
 			return 1 == pst.executeUpdate();
+		} 
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	public boolean saveBrand(Brand brand)
+	{
+		try
+		{
+			if (brand.isNew())
+			{
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Brand (brand_name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+				pst.setString(1, brand.getName());
+				
+				ResultSet rs = pst.executeQuery();
+				brand.setId(rs.getInt(1));
+				return true;
+			}
+			else
+			{
+				PreparedStatement pst = conn.prepareStatement("UPDATE Brand SET brand_name = ?WHERE brand_id = ? LIMIT 1");
+				pst.setString(1, brand.getName());
+				
+				return 1 == pst.executeUpdate();
+			}
+		} 
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	public boolean saveProductType(ProductType ptype)
+	{
+		try
+		{
+			if (ptype.isNew())
+			{
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Brand (brand_name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+				pst.setString(1, ptype.getName());
+				
+				ResultSet rs = pst.executeQuery();
+				ptype.setId(rs.getInt(1));
+				return true;
+			}
+			else
+			{
+				PreparedStatement pst = conn.prepareStatement("UPDATE Brand SET brand_name = ?WHERE brand_id = ? LIMIT 1");
+				pst.setString(1, ptype.getName());
+				
+				return 1 == pst.executeUpdate();
+			}
+		} 
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
+	
+	public boolean saveVendor(Vendor vend)
+	{
+		try
+		{
+			if (saveAddress(vend.getAddress()))
+			{
+				if (vend.isNew())
+				{
+
+					PreparedStatement pst = conn.prepareStatement("INSERT INTO Vendor (vendor_name, address_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+					pst.setString(1, vend.getName());
+					pst.setInt(2, vend.getAddress().getId());
+					
+					ResultSet rs = pst.executeQuery();
+					vend.setId(rs.getInt(1));
+					return true;
+				}
+				else
+				{
+					PreparedStatement pst = conn.prepareStatement("UPDATE Vendor SET vendor_name = ?, address_id = ? WHERE vendor_id = ? LIMIT 1;");
+					pst.setString(1, vend.getName());
+					pst.setInt(2, vend.getAddress().getId());
+					pst.setInt(3, vend.getId());
+					
+					int rows = pst.executeUpdate();
+					return rows == 1;
+				}
+			}
+			else
+			{
+				return false;
+			}
 		} 
 		catch (SQLException ex)
 		{
