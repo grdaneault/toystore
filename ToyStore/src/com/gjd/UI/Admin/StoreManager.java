@@ -2,7 +2,6 @@ package com.gjd.UI.Admin;
 
 import java.io.Serializable;
 
-import com.gjd.model.DatabaseObjects.Brand;
 import com.gjd.model.DatabaseObjects.Store;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
@@ -28,6 +27,7 @@ public class StoreManager extends TabSheet implements Serializable{
 		addTab(new StoreHoursControl(store), "Hours");
 		addTab(new AddressManager(store.getAddress()), "Address");
 		addTab(new BrandControl(), "Brands");
+		addTab(new ProductTypeManager(), "Product Types");
 		
 	}
 

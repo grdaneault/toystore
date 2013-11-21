@@ -3,17 +3,12 @@ package com.gjd.UI.Admin;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.tomcat.dbcp.dbcp.DbcpException;
-
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.USState;
-import com.vaadin.client.ui.Field;
-import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.validator.BeanValidator;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
@@ -105,6 +100,7 @@ public class AddressControl extends FormLayout {
 	{
 		DatabaseConnection conn = DatabaseConnection.getInstance();
 		conn.saveAddress(address);
+		conn.commit();
 	}
 
 	public void reset() {

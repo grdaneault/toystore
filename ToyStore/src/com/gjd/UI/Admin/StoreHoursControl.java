@@ -34,6 +34,8 @@ public class StoreHoursControl extends VerticalLayout {
 		Button save = new Button("Save");
 		save.addClickListener(new ClickListener() {
 			
+			private static final long serialVersionUID = 4541796747480718962L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				hours.save();
@@ -43,6 +45,8 @@ public class StoreHoursControl extends VerticalLayout {
 		Button reset = new Button("Reset");
 		reset.addClickListener(new ClickListener() {
 			
+			private static final long serialVersionUID = -5783527501063803721L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				hours.reset();

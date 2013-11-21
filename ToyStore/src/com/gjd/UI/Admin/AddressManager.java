@@ -11,6 +11,7 @@ import com.vaadin.ui.Button.ClickListener;
 
 public class AddressManager extends VerticalLayout {
 	
+	private static final long serialVersionUID = 1337975301760624629L;
 	private Address address;
 	private AddressControl addressControl;
 	
@@ -35,6 +36,8 @@ public class AddressManager extends VerticalLayout {
 		Button save = new Button("Save");
 		save.addClickListener(new ClickListener() {
 			
+			private static final long serialVersionUID = -1704016835432027418L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				addressControl.save();
@@ -43,6 +46,8 @@ public class AddressManager extends VerticalLayout {
 		
 		Button reset = new Button("Reset");
 		reset.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 7512736298908576129L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				addressControl.reset();

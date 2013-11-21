@@ -1,9 +1,11 @@
 package com.gjd.model;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
-
-import sun.jdbc.odbc.ee.ConnectionPool;
 
 import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.Brand;
@@ -198,7 +200,9 @@ public class DatabaseConnection {
 				pst.setInt(4, a.getState().getId());
 				pst.setString(5, a.getZip());
 				
-				ResultSet rs = pst.executeQuery();
+				pst.executeUpdate();
+				ResultSet rs = pst.getGeneratedKeys(); 
+				rs.next();
 				a.setId(rs.getInt(1));
 				return true;
 			}
@@ -244,7 +248,9 @@ public class DatabaseConnection {
 					pst.setString(1, s.getName());
 					pst.setInt(2, s.getAddress().getId());
 					
-					ResultSet rs = pst.executeQuery();
+					pst.executeUpdate();
+					ResultSet rs = pst.getGeneratedKeys(); 
+					rs.next();
 					s.setId(rs.getInt(1));
 					return true;
 				}
@@ -313,12 +319,10 @@ public class DatabaseConnection {
 				PreparedStatement pst = conn.prepareStatement("INSERT INTO Brand (brand_name) VALUES (?);", PreparedStatement.RETURN_GENERATED_KEYS);
 				pst.setString(1, brand.getName());
 				
-				System.out.println(pst.executeUpdate());
+				pst.executeUpdate();
 				ResultSet rs = pst.getGeneratedKeys(); 
 				rs.next();
 				brand.setId(rs.getInt(1));
-				System.out.println("brand ai: " + brand.getId());
-				System.out.println(brand.getName());
 				return true;
 			}
 			else

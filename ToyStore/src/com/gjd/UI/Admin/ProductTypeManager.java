@@ -17,15 +17,15 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.VerticalLayout;
 
-public class BrandControl extends VerticalLayout
+public class ProductTypeManager extends VerticalLayout
 {
 
-	SQLContainer brandContainer;
+	SQLContainer pTypeContainer;
 
 	public class RemoveColumnGenerator implements ColumnGenerator
 	{
 
-		private static final long serialVersionUID = -1189223015895769902L;
+		private static final long serialVersionUID = 1643311692916369231L;
 
 		@Override
 		public Object generateCell(Table source, Object itemId, Object columnId)
@@ -35,15 +35,18 @@ public class BrandControl extends VerticalLayout
 			remove.addClickListener(new ClickListener()
 			{
 
-				private static final long serialVersionUID = -8605828896793166762L;
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 6129335528597265495L;
 
 				@Override
 				public void buttonClick(ClickEvent event)
 				{
 					try
 					{
-						brandContainer.removeItem(item);
-						brandContainer.commit();
+						pTypeContainer.removeItem(item);
+						pTypeContainer.commit();
 						Notification n = new Notification("Success", "Brand removed", Notification.Type.TRAY_NOTIFICATION);
 						n.setDelayMsec(500);
 						n.show(Page.getCurrent());
@@ -63,14 +66,14 @@ public class BrandControl extends VerticalLayout
 
 	private static final long serialVersionUID = 7949836029759808474L;
 
-	public BrandControl()
+	public ProductTypeManager()
 	{
 		setMargin(true);
 		setSpacing(true);
 
 		try
 		{
-			Label header = new Label("<h2>Brands</h2>");
+			Label header = new Label("<h2>Product Types</h2>");
 			header.setContentMode(ContentMode.HTML);
 
 			Table brandTable = createBrandTable();
@@ -89,34 +92,34 @@ public class BrandControl extends VerticalLayout
 
 	private Table createBrandTable() throws SQLException
 	{
-		TableQuery brands = new TableQuery("Brand", DatabaseConnection.getInstance().getPool());
-		brandContainer = new SQLContainer(brands);
-		Table brandTable = new Table();
-		brandTable.setContainerDataSource(brandContainer);
+		TableQuery brands = new TableQuery("ProductType", DatabaseConnection.getInstance().getPool());
+		pTypeContainer = new SQLContainer(brands);
+		Table pTypeTable = new Table();
+		pTypeTable.setContainerDataSource(pTypeContainer);
 
 		// Hide the ID column (by default)
-		brandTable.setColumnCollapsingAllowed(true);
-		brandTable.setColumnCollapsed("brand_id", true);
-		brandTable.setColumnCollapsible("brand_name", false);
+		pTypeTable.setColumnCollapsingAllowed(true);
+		pTypeTable.setColumnCollapsed("type_id", true);
+		pTypeTable.setColumnCollapsible("type_name", false);
 
-		brandTable.setWidth("300px");
+		pTypeTable.setWidth("300px");
 		// Enable editing (and the associated SQL Magic ;) )
-		brandTable.setEditable(true);
+		pTypeTable.setEditable(true);
 
 		// Add remove buttons
-		brandTable.addGeneratedColumn("remove", new RemoveColumnGenerator());
+		pTypeTable.addGeneratedColumn("remove", new RemoveColumnGenerator());
 
 		// Set the headers
-		brandTable.setColumnHeaders("ID", "Brand Name", "Remove");
-		return brandTable;
+		pTypeTable.setColumnHeaders("ID", "Product Type", "Remove");
+		return pTypeTable;
 	}
 
 	private HorizontalLayout createButtonLayout()
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
-		Button addBrand = new Button("New Brand");
-		addBrand.addClickListener(new ClickListener()
+		Button addProductType = new Button("New Product Type");
+		addProductType.addClickListener(new ClickListener()
 		{
 
 			private static final long serialVersionUID = -3848256903363909965L;
@@ -125,18 +128,18 @@ public class BrandControl extends VerticalLayout
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				Object newBrand = brandContainer.addItem();
-				brandContainer.getItem(newBrand).getItemProperty("brand_name").setValue("New Brand");
+				Object newBrand = pTypeContainer.addItem();
+				pTypeContainer.getItem(newBrand).getItemProperty("type_name").setValue("New Product Type");
 				try
 				{
-					brandContainer.commit();
+					pTypeContainer.commit();
 					Notification n = new Notification("Success", "Brand created", Notification.Type.TRAY_NOTIFICATION);
 					n.setDelayMsec(500);
 					n.show(Page.getCurrent());
 				}
 				catch (SQLException e)
 				{
-					Notification n = new Notification("Error", "Error creating brand:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
+					Notification n = new Notification("Error", "Error creating product type:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
 					n.show(Page.getCurrent());
 					e.printStackTrace();
 				}
@@ -154,14 +157,14 @@ public class BrandControl extends VerticalLayout
 			{
 				try
 				{
-					brandContainer.commit();
-					Notification n = new Notification("Success", "Brands saved", Notification.Type.TRAY_NOTIFICATION);
+					pTypeContainer.commit();
+					Notification n = new Notification("Success", "Product types saved", Notification.Type.TRAY_NOTIFICATION);
 					n.setDelayMsec(500);
 					n.show(Page.getCurrent());
 				}
 				catch (SQLException e)
 				{
-					Notification n = new Notification("Error", "Error updating brands" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
+					Notification n = new Notification("Error", "Error updating product types" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
 					n.show(Page.getCurrent());
 					e.printStackTrace();
 				}
@@ -179,8 +182,8 @@ public class BrandControl extends VerticalLayout
 			{
 				try
 				{
-					brandContainer.rollback();
-					Notification n = new Notification("Success", "Brands reset", Notification.Type.TRAY_NOTIFICATION);
+					pTypeContainer.rollback();
+					Notification n = new Notification("Success", "Product types reset", Notification.Type.TRAY_NOTIFICATION);
 					n.setDelayMsec(500);
 					n.show(Page.getCurrent());
 				}
@@ -193,7 +196,7 @@ public class BrandControl extends VerticalLayout
 			}
 		});
 
-		buttons.addComponent(addBrand);
+		buttons.addComponent(addProductType);
 		buttons.addComponent(save);
 		buttons.addComponent(reset);
 
