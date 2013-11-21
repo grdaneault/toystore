@@ -8,10 +8,12 @@ import org.apache.tomcat.dbcp.dbcp.DbcpException;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.USState;
+import com.vaadin.client.ui.Field;
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
@@ -21,6 +23,7 @@ public class AddressControl extends FormLayout {
 	private static final long serialVersionUID = 1L;
 
 	private Address address;
+	private Address backup;
 
 	/**
 	 * The constructor should first build the main layout, set the
@@ -33,6 +36,7 @@ public class AddressControl extends FormLayout {
 	{
 		super();
 		this.address = address;
+		this.backup = new Address(address.getId(), address.getLine1(), address.getLine2(), address.getCity(), address.getState().getId(), address.getZip());
 		buildMainLayout();
 	}
 
@@ -42,10 +46,12 @@ public class AddressControl extends FormLayout {
 		BeanItem<Address> item = new BeanItem<Address>(address);
 		BeanItemContainer<USState> stateBeans = new BeanItemContainer<USState>(USState.class);
 		stateBeans.addAll(USState.getAllStates());
+		this.setImmediate(false);
 		
 		TextField line1 = new TextField("Line 1", item.getItemProperty("line1"));
 		line1.addValidator(new BeanValidator(Address.class, "line1"));
-		line1.setImmediate(true);
+		line1.setImmediate(false);
+		line1.setBuffered(true);
 		line1.setWidth("250px");
 		line1.setValue(address.getLine1());
 		addComponent(line1);
@@ -93,5 +99,21 @@ public class AddressControl extends FormLayout {
 		addComponent(zip);
 		zip.setRequired(true);
 
+	}
+	
+	public void save()
+	{
+		DatabaseConnection conn = DatabaseConnection.getInstance();
+		conn.saveAddress(address);
+	}
+
+	public void reset() {
+		System.out.println(this.address);
+		address.setLine1(backup.getLine1());
+		address.setLine2(backup.getLine2());
+		address.setCity(backup.getCity());
+		address.setState(backup.getState());
+		address.setZip(backup.getZip());
+		System.out.println(this.address);
 	}
 }

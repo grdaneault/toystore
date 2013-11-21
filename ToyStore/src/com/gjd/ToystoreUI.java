@@ -44,13 +44,14 @@ public class ToystoreUI extends UI {
 		
 		Label headerLbl = new Label("<h1>Toy Store!</h1>");
 		ComboBox storeSelect = new ComboBox();
+		/*
 		try
 		{
-		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(1));
-		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(2));
-		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(3));
+		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(1));
+		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(2));
+		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(3));
 		
-		storeSelect.setNewItemsAllowed(false);
+		//storeSelect.setNewItemsAllowed(false);
 		storeSelect.setFilteringMode(FilteringMode.CONTAINS);
 		}
 		catch (SQLException ex)
@@ -58,11 +59,11 @@ public class ToystoreUI extends UI {
 			ex.printStackTrace(System.err);
 			storeSelect.setEnabled(false);
 		}
-		
+		*/
 		headerLbl.setContentMode(ContentMode.HTML);
 		
 		header.addComponent(headerLbl);
-		header.addComponent(storeSelect);
+		//header.addComponent(storeSelect);
 		layout.addComponent(header);
 		
 		try
@@ -88,7 +89,7 @@ public class ToystoreUI extends UI {
 					
 				}
 			});
-			layout.addComponent(button);
+			//layout.addComponent(button);
 		}
 		catch (SQLException ex)
 		{
