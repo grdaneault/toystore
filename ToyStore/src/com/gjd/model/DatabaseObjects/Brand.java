@@ -1,9 +1,13 @@
 package com.gjd.model.DatabaseObjects;
 
+import java.io.Serializable;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class Brand {
+public class Brand implements Serializable {
+	private static final long serialVersionUID = -1024881119536364421L;
+
 	private int id;
 	
 	@NotNull

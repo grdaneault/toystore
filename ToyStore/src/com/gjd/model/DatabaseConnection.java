@@ -3,6 +3,8 @@ package com.gjd.model;
 import java.sql.*;
 import java.util.HashMap;
 
+import sun.jdbc.odbc.ee.ConnectionPool;
+
 import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.Brand;
 import com.gjd.model.DatabaseObjects.Customer;
@@ -11,6 +13,8 @@ import com.gjd.model.DatabaseObjects.ProductType;
 import com.gjd.model.DatabaseObjects.Store;
 import com.gjd.model.DatabaseObjects.USState;
 import com.gjd.model.DatabaseObjects.Vendor;
+import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
+import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 
 public class DatabaseConnection {
 	
@@ -30,7 +34,23 @@ public class DatabaseConnection {
 		return instance;
 	}
 	
+	public boolean commit()
+	{
+		try
+		{
+			conn.commit();
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	private Connection conn;
+	private JDBCConnectionPool connPool;
+	
 
 	private ResultSet getOneById(String table, String column, int id) throws SQLException
 	{
@@ -62,7 +82,8 @@ public class DatabaseConnection {
 	{
 		try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            conn = DriverManager.getConnection("jdbc:mysql://" + DatabaseCredentials.DB_HOST + "/" + DatabaseCredentials.DB_DB, DatabaseCredentials.DB_USER, DatabaseCredentials.DB_PASS);
+            connPool = new SimpleJDBCConnectionPool("com.mysql.jdbc.Driver", "jdbc:mysql://" + DatabaseCredentials.DB_HOST + "/" + DatabaseCredentials.DB_DB, DatabaseCredentials.DB_USER, DatabaseCredentials.DB_PASS);
+            conn = connPool.reserveConnection();
         } catch (Exception ex) {
         	System.err.println("Fatal error:  unable to create connection.");
         	ex.printStackTrace(System.err);
@@ -138,6 +159,22 @@ public class DatabaseConnection {
 		if (rs == null) return null;
 		return new ProductType(rs.getInt("product_type_id"), rs.getString("product_type_name"));
 	}
+	
+	public int getCountOf(String table)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT count(*) FROM  " + table);
+			ResultSet rs = pst.executeQuery();
+			return rs.getInt(1);
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return -1;
+		}
+	}
+	
 	
 	/**
 	 * Saves an address to the database
@@ -273,17 +310,22 @@ public class DatabaseConnection {
 		{
 			if (brand.isNew())
 			{
-				PreparedStatement pst = conn.prepareStatement("INSERT INTO Brand (brand_name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Brand (brand_name) VALUES (?);", PreparedStatement.RETURN_GENERATED_KEYS);
 				pst.setString(1, brand.getName());
 				
-				ResultSet rs = pst.executeQuery();
+				System.out.println(pst.executeUpdate());
+				ResultSet rs = pst.getGeneratedKeys(); 
+				rs.next();
 				brand.setId(rs.getInt(1));
+				System.out.println("brand ai: " + brand.getId());
+				System.out.println(brand.getName());
 				return true;
 			}
 			else
 			{
-				PreparedStatement pst = conn.prepareStatement("UPDATE Brand SET brand_name = ?WHERE brand_id = ? LIMIT 1");
+				PreparedStatement pst = conn.prepareStatement("UPDATE Brand SET brand_name = ? WHERE brand_id = ? LIMIT 1");
 				pst.setString(1, brand.getName());
+				pst.setInt(2, brand.getId());
 				
 				return 1 == pst.executeUpdate();
 			}
@@ -346,7 +388,6 @@ public class DatabaseConnection {
 					pst.setString(1, vend.getName());
 					pst.setInt(2, vend.getAddress().getId());
 					pst.setInt(3, vend.getId());
-					
 					int rows = pst.executeUpdate();
 					return rows == 1;
 				}
@@ -361,5 +402,9 @@ public class DatabaseConnection {
 			ex.printStackTrace(System.err);
 			return false;
 		}
+	}
+
+	public JDBCConnectionPool getPool() {
+		return connPool;
 	}
 }
