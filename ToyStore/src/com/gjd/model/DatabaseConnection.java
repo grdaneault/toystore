@@ -5,12 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.Brand;
 import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.DayHour;
+import com.gjd.model.DatabaseObjects.Product;
 import com.gjd.model.DatabaseObjects.ProductType;
 import com.gjd.model.DatabaseObjects.Store;
 import com.gjd.model.DatabaseObjects.USState;
@@ -86,6 +89,7 @@ public class DatabaseConnection {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             connPool = new SimpleJDBCConnectionPool("com.mysql.jdbc.Driver", "jdbc:mysql://" + DatabaseCredentials.DB_HOST + "/" + DatabaseCredentials.DB_DB, DatabaseCredentials.DB_USER, DatabaseCredentials.DB_PASS);
             conn = connPool.reserveConnection();
+            conn.setAutoCommit(true);
         } catch (Exception ex) {
         	System.err.println("Fatal error:  unable to create connection.");
         	ex.printStackTrace(System.err);
@@ -175,6 +179,14 @@ public class DatabaseConnection {
 			ex.printStackTrace(System.err);
 			return -1;
 		}
+	}
+	
+	public Product getProductById(int product_id) throws SQLException
+	{
+		//TODO:  actually load brand, vendor, product type
+		ResultSet rs = getOneById("Product", "product_id", product_id);
+		if (rs == null) return null;
+		return new Product(rs.getInt("SKU"), rs.getString("product_name"), rs.getString("image"), rs.getDouble("weight"), rs.getFloat("MSRP"), rs.getFloat("price"), null, null, null);
 	}
 	
 	
@@ -406,6 +418,52 @@ public class DatabaseConnection {
 			ex.printStackTrace(System.err);
 			return false;
 		}
+	}
+	
+	public Customer lookupCustomer(String first, String last)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT * FROM Customer WHERE cname_first = ? and cname_last = ?");
+			pst.setString(1, first);
+			pst.setString(2, last);
+			
+			ResultSet rs = pst.executeQuery();
+			
+			Address addr = getAddressById(rs.getInt("address_id"));
+			return new Customer(rs.getInt("customer_id"), first, rs.getString("cname_mi"), last, addr, rs.getString("phone"), rs.getString("email"));
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return null;
+		}
+	}
+	
+	public Collection<Product> getTopSellers(int limit)
+	{
+		Collection<Product> top = new ArrayList<Product>(limit);
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT SKU, COUNT(*) as Popularity FROM PurchaseItems GROUP BY SKU ORDER BY Popularity DESC LIMIT ?");
+			pst.setInt(1, limit);
+			
+			ResultSet rs = pst.executeQuery();
+			
+			while (rs.next())
+			{
+				Product p = new Product();
+				p.setSKU(rs.getInt("SKU"));
+				top.add(p);
+			}
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		
+		return top;
 	}
 
 	public JDBCConnectionPool getPool() {

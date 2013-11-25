@@ -60,4 +60,10 @@ public class StoreHoursControl extends VerticalLayout {
 		setSpacing(true);
 	}
 
+	public void setStore(Store s)
+	{
+		store = s;
+		hours.setStore(s);
+	}
+
 }

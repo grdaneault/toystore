@@ -4,13 +4,14 @@ import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.gjd.UI.Admin.AddressControl;
 import com.gjd.UI.Admin.StoreManager;
+import com.gjd.UI.User.ProductTable;
 import com.gjd.model.DatabaseConnection;
-import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.Store;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -33,7 +34,8 @@ public class ToystoreUI extends UI {
 	}
 	
 	int i = 0;
-
+	private StoreManager storeManager;
+	
 	@Override
 	protected void init(VaadinRequest request) {
 		final VerticalLayout layout = new VerticalLayout();
@@ -44,14 +46,14 @@ public class ToystoreUI extends UI {
 		
 		Label headerLbl = new Label("<h1>Toy Store!</h1>");
 		ComboBox storeSelect = new ComboBox();
-		/*
+		
 		try
 		{
-		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(1));
-		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(2));
-		//storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(3));
+		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(1));
+		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(2));
+		storeSelect.addItem(DatabaseConnection.getInstance().getStoreById(3));
 		
-		//storeSelect.setNewItemsAllowed(false);
+		storeSelect.setNewItemsAllowed(false);
 		storeSelect.setFilteringMode(FilteringMode.CONTAINS);
 		}
 		catch (SQLException ex)
@@ -59,11 +61,21 @@ public class ToystoreUI extends UI {
 			ex.printStackTrace(System.err);
 			storeSelect.setEnabled(false);
 		}
-		*/
+		
+		storeSelect.setImmediate(true);
+		storeSelect.addValueChangeListener(new ValueChangeListener()
+		{
+			
+			public void valueChange(ValueChangeEvent event)
+			{
+				Store s = (Store) event.getProperty().getValue();
+				storeManager.changeStore(s);
+			}
+		});
 		headerLbl.setContentMode(ContentMode.HTML);
 		
 		header.addComponent(headerLbl);
-		//header.addComponent(storeSelect);
+		header.addComponent(storeSelect);
 		layout.addComponent(header);
 		
 		try
@@ -74,8 +86,8 @@ public class ToystoreUI extends UI {
 			
 			final Store store = DatabaseConnection.getInstance().getStoreById(1);
 			System.out.println(store);
-			StoreManager sm = new StoreManager(store);
-			layout.addComponent(sm);
+			storeManager = new StoreManager(store);
+			layout.addComponent(storeManager);
 			
 			Button button = new Button("Click Me");
 			button.addClickListener(new Button.ClickListener() {
@@ -95,6 +107,14 @@ public class ToystoreUI extends UI {
 		{
 			ex.printStackTrace(System.err);
 		}
+		
+		
+		
+		
+		ProductTable products = new ProductTable();
+		products.setPageLength(10);
+		layout.addComponent(products);
+		layout.addComponent(products.createControls());
 		
 	}
 

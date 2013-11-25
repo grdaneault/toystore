@@ -160,4 +160,10 @@ public class StoreHoursTable extends Table {
 		}
 	}
 
+	public void setStore(Store s)
+	{
+		store = s;
+		reset();
+	}
+
 }

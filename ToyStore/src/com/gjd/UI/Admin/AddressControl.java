@@ -100,7 +100,6 @@ public class AddressControl extends FormLayout {
 	{
 		DatabaseConnection conn = DatabaseConnection.getInstance();
 		conn.saveAddress(address);
-		conn.commit();
 	}
 
 	public void reset() {

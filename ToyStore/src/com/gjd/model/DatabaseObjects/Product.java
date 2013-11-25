@@ -10,8 +10,8 @@ public class Product implements Serializable
 	private String name;
 	private String image;
 	private double weight;
-	private double MSRP;
-	private double price;
+	private float MSRP;
+	private float price;
 	private ProductType type;
 	private Brand brand;
 	private Vendor vendor;
@@ -56,22 +56,22 @@ public class Product implements Serializable
 		this.weight = weight;
 	}
 	
-	public double getMSRP()
+	public float getMSRP()
 	{
 		return MSRP;
 	}
 	
-	public void setMSRP(double mSRP)
+	public void setMSRP(float mSRP)
 	{
 		MSRP = mSRP;
 	}
 	
-	public double getPrice()
+	public float getPrice()
 	{
 		return price;
 	}
 	
-	public void setPrice(double price)
+	public void setPrice(float price)
 	{
 		this.price = price;
 	}
@@ -104,5 +104,23 @@ public class Product implements Serializable
 	public void setVendor(Vendor vendor)
 	{
 		this.vendor = vendor;
+	}
+
+	public Product(int SKU, String name, String image, double weight, float MSRP, float price, ProductType type,
+			Brand brand, Vendor vendor)
+	{
+		this.SKU = SKU;
+		this.name = name;
+		this.image = image;
+		this.weight = weight;
+		this.MSRP = MSRP;
+		this.price = price;
+		this.type = type;
+		this.brand = brand;
+		this.vendor = vendor;
+	}
+
+	public Product()
+	{
 	}
 }

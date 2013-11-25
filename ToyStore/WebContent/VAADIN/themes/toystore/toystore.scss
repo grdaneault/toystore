@@ -13,4 +13,25 @@
   .v-table-cell-content {
 	    vertical-align: middle;
 	}
+	
+	.productname {
+		color: #0099CC;
+		font-size: 15px;
+	}
+	
+	
+	.store_header
+	{
+		width: 100%;
+		background-color: #FFF;
+		border-bottom:3px #000 solid;
+		padding: 10px 25px;
+		font-size: 25px;
+		color: #09C;
+	}
+	
+	.store_header h1
+	{
+		margin: 15px;
+	}
 }

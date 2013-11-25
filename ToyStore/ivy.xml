@@ -42,9 +42,15 @@
 			rev="&vaadin.version;" conf="widgetset-compile->default" />
 			
 			
-		<!--  Bean stuff -->
+		<!--  Bean Databindings -->
 		<dependency org="javax.validation" name="validation-api" rev="1.1.0.Final" />
 		<dependency org="org.hibernate" name="hibernate-validator" rev="4.2.0.Final"/>
-            
+		
+		<!--  Table Pagination -->
+        <dependency org="org.vaadin.addons" name="pagedtable" rev="0.6.5" />
+        
+        <!-- Filter Table -->
+		<dependency org="org.vaadin.addons" name="filteringtable" rev="0.9.2.v7" />
+		
 	</dependencies>
 </ivy-module>
