@@ -39,7 +39,7 @@ public class ProductTable extends PagedTable
 		// `Vendor`.vendor_id JOIN `Brand` ON `Product`.brand_id =
 		// `Brand`.brand_id JOIN `ProductType` ON `Product`.type_id =
 		// `ProductType`.type_id WHERE 1
-		FreeformQuery productQuery = new FreeformQuery("SELECT * FROM Product", DatabaseConnection.getInstance()
+		FreeformQuery productQuery = new FreeformQuery("SELECT Product.* , Vendor.vendor_name as vendor_name, Brand.brand_name as brand_name, ProductType.type_name as type_name FROM  `Product` JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id JOIN  `ProductType` ON  `Product`.type_id =  `ProductType`.type_id", DatabaseConnection.getInstance()
 				.getPool(), "SKU");
 		
 		delegate = new ProductFreeformStatementDelegate();
@@ -109,7 +109,7 @@ public class ProductTable extends PagedTable
 		setPageLength(10);
 	}
 
-	private class ProductFreeformStatementDelegate implements FreeformStatementDelegate
+	public class ProductFreeformStatementDelegate implements FreeformStatementDelegate
 	{
 
 		private List<Filter> filters;
@@ -162,7 +162,7 @@ public class ProductTable extends PagedTable
 		{
 			StatementHelper sh = new StatementHelper();
 			StringBuffer query = new StringBuffer(
-					"SELECT Product.* , Vendor.vendor_name, Brand.brand_name, ProductType.type_name ");
+					"SELECT Product.* , Vendor.vendor_name as vendor_name, Brand.brand_name as brand_name, ProductType.type_name as type_name ");
 			query.append("FROM  `Product` ");
 			query.append("JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id ");
 			query.append("JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id ");
@@ -180,6 +180,7 @@ public class ProductTable extends PagedTable
 				query.append(" OFFSET ").append(offset);
 			}
 
+			System.out.println(query.toString());
 			sh.setQueryString(query.toString());
 			return sh;
 		}
@@ -215,7 +216,7 @@ public class ProductTable extends PagedTable
 		public StatementHelper getCountStatement() throws UnsupportedOperationException
 		{
 			StatementHelper sh = new StatementHelper();
-			StringBuffer query = new StringBuffer("SELECT COUNT(*) FROM Product ");
+			StringBuffer query = new StringBuffer("SELECT COUNT(*) FROM Product JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id JOIN  `ProductType` ON  `Product`.type_id =  `ProductType`.type_id ");
 			if (filters != null)
 			{
 				query.append(QueryBuilder.getWhereStringForFilters(filters, sh));
