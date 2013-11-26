@@ -62,6 +62,7 @@ public class BrandControl extends VerticalLayout
 	}
 
 	private static final long serialVersionUID = 7949836029759808474L;
+	private Table brandTable;
 
 	public BrandControl()
 	{
@@ -91,7 +92,7 @@ public class BrandControl extends VerticalLayout
 	{
 		TableQuery brands = new TableQuery("Brand", DatabaseConnection.getInstance().getPool());
 		brandContainer = new SQLContainer(brands);
-		Table brandTable = new Table();
+		brandTable = new Table();
 		brandTable.setContainerDataSource(brandContainer);
 
 		// Hide the ID column (by default)
@@ -99,7 +100,7 @@ public class BrandControl extends VerticalLayout
 		brandTable.setColumnCollapsed("brand_id", true);
 		brandTable.setColumnCollapsible("brand_name", false);
 
-		brandTable.setWidth("300px");
+		brandTable.setWidth("500px");
 		// Enable editing (and the associated SQL Magic ;) )
 		brandTable.setEditable(true);
 
@@ -130,6 +131,12 @@ public class BrandControl extends VerticalLayout
 				try
 				{
 					brandContainer.commit();
+					brandTable.refreshRowCache();
+					int index = getComponentIndex(brandTable);
+					replaceComponent(brandTable, brandTable);
+					
+					
+					
 					Notification n = new Notification("Success", "Brand created", Notification.Type.TRAY_NOTIFICATION);
 					n.setDelayMsec(500);
 					n.show(Page.getCurrent());

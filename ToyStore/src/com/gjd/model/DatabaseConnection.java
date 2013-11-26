@@ -220,14 +220,16 @@ public class DatabaseConnection {
 			}
 			else
 			{
-				PreparedStatement pst = conn.prepareStatement("UPDATE Address SET line_1 = ?, line_2 = ?, city = ?, state_id = ?, zip = ? LIMIT 1;");
+				PreparedStatement pst = conn.prepareStatement("UPDATE Address SET line_1 = ?, line_2 = ?, city = ?, state_id = ?, zip = ? WHERE address_id = ? LIMIT 1;");
 				pst.setString(1, a.getLine1());
 				pst.setString(2, a.getLine2());
 				pst.setString(3, a.getCity());
 				pst.setInt(4, a.getState().getId());
 				pst.setString(5, a.getZip());
+				pst.setInt(6, a.getId());
 				
 				int rows = pst.executeUpdate();
+				System.out.println(rows + " Rows affected.\n" + a.toString());
 				return rows == 1;
 			}
 		} 

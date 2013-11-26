@@ -8,6 +8,7 @@ import com.gjd.UI.User.ProductTable;
 import com.gjd.model.DatabaseObjects.Brand;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -27,6 +28,7 @@ public class WebStoreUI extends UI implements Command
 
 	@WebServlet(value = "/WebStore/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = WebStoreUI.class)
+	@Widgetset(value = "com.gjd.widgetset.ToystoreWidgetset")
 	public static class Servlet extends VaadinServlet {
 	}
 	

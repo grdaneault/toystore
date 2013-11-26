@@ -41,12 +41,10 @@ public class AddressControl extends FormLayout {
 		BeanItem<Address> item = new BeanItem<Address>(address);
 		BeanItemContainer<USState> stateBeans = new BeanItemContainer<USState>(USState.class);
 		stateBeans.addAll(USState.getAllStates());
-		this.setImmediate(false);
+		this.setImmediate(true);
 		
 		TextField line1 = new TextField("Line 1", item.getItemProperty("line1"));
 		line1.addValidator(new BeanValidator(Address.class, "line1"));
-		line1.setImmediate(false);
-		line1.setBuffered(true);
 		line1.setWidth("250px");
 		line1.setValue(address.getLine1());
 		addComponent(line1);

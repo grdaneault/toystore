@@ -50,7 +50,12 @@
         <dependency org="org.vaadin.addons" name="pagedtable" rev="0.6.5" />
         
         <!-- Filter Table -->
-		<dependency org="org.vaadin.addons" name="filteringtable" rev="0.9.2.v7" />
+		<dependency org="org.vaadin.addons" name="filteringtable" rev="0.9.2.v7"/>
+		<dependency org="org.vaadin.addons" name="popupbutton" rev="2.2.1" />
+		
+		<!-- Logging -->
+		<dependency org="org.slf4j" name="slf4j-simple" rev="1.6.1"/>
+            
 		
 	</dependencies>
 </ivy-module>

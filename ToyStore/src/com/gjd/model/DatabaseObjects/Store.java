@@ -4,11 +4,17 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.util.HashMap;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class Store implements Serializable{
 
 	private static final long serialVersionUID = 5634288723940653173L;
 	
 	private int id;
+	
+	@NotNull
+	@Size(min=0, max=255)
 	private String name;
 	private Address address;
 	

@@ -34,4 +34,27 @@
 	{
 		margin: 15px;
 	}
+	
+	.store_header h2
+	{
+		font-size: 15px;
+		margin-top: 0;
+		margin-left: 15px;
+	}
+	
+	.v-table-body-wrapper
+	{
+		height: auto!important;
+	}
+	
+	
+	.v-table input.v-textfield.v-widget
+	{
+		width: 100%;
+	}
+	
+	.paging .v-errorindicator
+	{
+		display:none;
+	}
 }
