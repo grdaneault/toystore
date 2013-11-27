@@ -1,5 +1,6 @@
 package com.gjd.model;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -470,5 +471,39 @@ public class DatabaseConnection {
 
 	public JDBCConnectionPool getPool() {
 		return connPool;
+	}
+
+	public boolean saveProductWeight(int sku, double weight)
+	{
+		return saveProductField(sku, "Weight", weight);
+	}
+
+	public boolean saveProductPrice(int sku, BigDecimal bd)
+	{
+		return saveProductField(sku, "Price", bd);
+	}
+	
+	public boolean saveProductMSRP(int sku, BigDecimal bd)
+	{
+		return saveProductField(sku, "MSRP", bd);
+	}
+	
+	public boolean saveProductField(int sku, String column, Object o)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE Product SET " + column + " = ? WHERE SKU = ? LIMIT 1;");
+			pst.setObject(1, o);
+			pst.setInt(2, sku);
+			
+			int rows = pst.executeUpdate();
+			System.out.println(rows);
+			return rows == 1;
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
 	}
 }

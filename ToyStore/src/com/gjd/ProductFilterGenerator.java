@@ -28,7 +28,6 @@ public class ProductFilterGenerator implements FilterGenerator
 	@Override
 	public AbstractField<?> getCustomFilterComponent(Object propertyId)
 	{
-		System.out.println(propertyId);
 		if (table.getContainerDataSource().getType(propertyId) == BigDecimal.class)
 		{
 			NumberFilterPopup nfp = new NumberFilterPopup(table.getFilterDecorator());
