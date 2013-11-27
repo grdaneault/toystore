@@ -1,29 +1,15 @@
 package com.gjd;
 
-import java.sql.SQLException;
-
 import javax.servlet.annotation.WebServlet;
 
-import org.tepi.filtertable.FilterGenerator;
-import org.tepi.filtertable.FilterTable;
-import org.tepi.filtertable.paged.PagedFilterTable;
-
+import com.gjd.UI.User.ProductPagedFilterTable;
 import com.gjd.UI.User.ProductTable;
-import com.gjd.UI.User.ProductTable.ProductFreeformStatementDelegate;
-import com.gjd.model.DatabaseConnection;
-import com.gjd.model.DatabaseObjects.Brand;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.annotations.Widgetset;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
@@ -99,29 +85,7 @@ public class WebStoreUI extends UI implements Command
 	
 	private Component loadBrowseByBrand()
 	{
-		FreeformQuery productQuery = new FreeformQuery("SELECT * FROM Product", DatabaseConnection.getInstance()
-				.getPool(), "SKU");
-		
-		ProductTable p = new ProductTable();
-		ProductFreeformStatementDelegate delegate = p.new ProductFreeformStatementDelegate();
-		productQuery.setDelegate(delegate);
-
-		PagedFilterTable<SQLContainer> table = new PagedFilterTable<SQLContainer>();
-		try
-		{
-			SQLContainer sc = new SQLContainer(productQuery);
-			table.setContainerDataSource(sc);
-			table.setFilterBarVisible(true);
-			
-			
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-		}
-		
-		
-		return table;
+		return new ProductPagedFilterTable();
 	}
 
 	@Override
