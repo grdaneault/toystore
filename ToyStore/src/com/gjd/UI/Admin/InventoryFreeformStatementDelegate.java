@@ -99,6 +99,8 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 		if (filters != null)
 		{
 			String filterWhere = QueryBuilder.getWhereStringForFilters(filters, sh);
+			query.append(filterWhere);
+			
 			if (filterWhere.contains("WHERE"))
 			{
 				query.append(" AND ");
@@ -113,9 +115,8 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 			query.append(" WHERE ");
 		}
 
-		query.append(" ( `Inventory`.store_id = ");
+		query.append(" `Inventory`.store_id = ");
 		query.append(store_id);
-		query.append(" OR `Inventory`.store_id IS NULL ) ");
 	}
 
 	private String getOrderByString()
