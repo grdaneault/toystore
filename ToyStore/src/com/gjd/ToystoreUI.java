@@ -7,7 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import com.gjd.UI.Admin.BrandControl;
 import com.gjd.UI.Admin.ProductTypeManager;
 import com.gjd.UI.Admin.StoreManager;
-import com.gjd.UI.User.ProductTable;
+import com.gjd.UI.ProductControls.ProductTable;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
 import com.vaadin.annotations.Theme;
@@ -32,7 +32,7 @@ import com.vaadin.ui.VerticalLayout;
 public class ToystoreUI extends UI implements Command {
 
 	@WebServlet(value = "/*", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = ToystoreUI.class)
+	@VaadinServletConfiguration(productionMode = false, ui = ToystoreUI.class, widgetset = "com.gjd.widgetset.ToystoreWidgetset")
 	public static class Servlet extends VaadinServlet {
 	}
 	

@@ -2,8 +2,8 @@ package com.gjd;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.gjd.UI.User.ProductPagedFilterTable;
-import com.gjd.UI.User.ProductTable;
+import com.gjd.UI.ProductControls.ProductPagedFilterTable;
+import com.gjd.UI.ProductControls.ProductTable;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;

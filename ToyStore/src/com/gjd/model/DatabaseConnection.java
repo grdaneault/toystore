@@ -506,4 +506,63 @@ public class DatabaseConnection {
 			return false;
 		}
 	}
+
+	public boolean saveInventoryField(int sku, int store, String column, Object value)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE Inventory SET " + column + " = ? WHERE SKU = ? AND store_id = ? LIMIT 1;");
+			pst.setObject(1, value);
+			pst.setInt(2, sku);
+			pst.setInt(3, store);
+			
+			int rows = pst.executeUpdate();
+			System.out.println(rows);
+			return rows == 1;
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	public int getProductCount()
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT COUNT(*) as count FROM Product");
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			return rs.getInt("count");
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return 0;
+		}
+	}
+			
+	/**
+	 * Used to ensure that when modifying a store's inventory they have entries for every product
+	 * 
+	 * @param store_id
+	 */
+	public void ensureStoreInventory(int store_id)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement(
+					"INSERT IGNORE INTO Inventory( SKU, store_id, price, quantity, desired_quantity, reorder_threshold ) " +
+					"SELECT SKU, ? AS store_id, price, 0 AS quantity, 0 AS desired_quantity, 0 AS reorder_threshold " +
+					" FROM Product");
+			pst.setInt(1, store_id);
+			
+			pst.executeUpdate();
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+	}
 }

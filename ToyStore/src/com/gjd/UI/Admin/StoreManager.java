@@ -3,7 +3,7 @@ package com.gjd.UI.Admin;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.gjd.UI.User.ProductTable;
+import com.gjd.UI.ProductControls.ProductTable;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
 import com.vaadin.data.util.BeanItem;
@@ -102,7 +102,7 @@ public class StoreManager extends TabSheet implements Serializable{
 		
 		ProductTable prodTab = new ProductTable();
 		prodTab.setCaption("Currently only a listing of all products in the database");
-		inventoryTab = addTab(prodTab, "Inventory");
+		inventoryTab = addTab(new StoreInventoryManager(store), "Inventory");
 		//addTab(new BrandControl(), "Brands");
 		//addTab(new ProductTypeManager(), "Product Types");
 		
