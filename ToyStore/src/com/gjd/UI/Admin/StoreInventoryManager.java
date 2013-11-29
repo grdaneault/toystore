@@ -44,9 +44,30 @@ public class StoreInventoryManager extends VerticalLayout
 		products.addPopupColumn(new PopupEditorColumnGenerator.InventorySaveHandler(), "price", "quantity", "desired_quantity", "reorder_threshold");
 		products.setSelectable(true);
 		products.setMultiSelect(true);
-		final PopupButton setAll = new PopupButton("Set All Desired Quantities");
+		final PopupButton updateSelected = new PopupButton("Update Selected");
+		updateSelected.setContent(createSetButtons());
+		
+		HorizontalLayout dataControls = new HorizontalLayout(updateSelected);
+		addComponent(dataControls);
+	}
+
+	private Component createSetButtons()
+	{
+		VerticalLayout setAllButtons = new VerticalLayout();
+		setAllButtons.setMargin(true);
+		setAllButtons.setSpacing(true);
+		
+		setAllButtons.addComponent(createSetAllButton("Desired Quantity", "desired_quantity"));
+		setAllButtons.addComponent(createSetAllButton("Quantity", "quantity"));
+		setAllButtons.addComponent(createSetAllButton("Reorder Threshold", "reorder_threshold"));
+		return setAllButtons;
+	}
+
+	private Component createSetAllButton(final String caption, final String column)
+	{
+		final PopupButton setAll = new PopupButton("Set Selected " + caption);
 		final TextField newval = new TextField();
-		Button setAllSave = new Button("Set All Desired Quantities");
+		Button setAllSave = new Button("Save");
 		
 		setAllSave.addClickListener(new ClickListener()
 		{
@@ -59,27 +80,28 @@ public class StoreInventoryManager extends VerticalLayout
 				{
 					int sku = (Integer) products.getItem(item).getItemProperty("SKU").getValue();
 					int store = (Integer) products.getItem(item).getItemProperty("store_id").getValue();
-					good = good && DatabaseConnection.getInstance().saveInventoryField(sku, store, "desired_quantity", newval.getValue());
-					products.getItem(item).getItemProperty("desired_quantity").setValue(Integer.valueOf(newval.getValue()));
+					good = good && DatabaseConnection.getInstance().saveInventoryField(sku, store, column, newval.getValue());
+					products.getItem(item).getItemProperty(column).setValue(Integer.valueOf(newval.getValue()));
 				}
 				if (good)
 				{
-					Notification.show("Success", "Desired quantities updated", Type.HUMANIZED_MESSAGE);
+					Notification.show("Success", caption + "updated", Type.HUMANIZED_MESSAGE);
 					setAll.setPopupVisible(false);
 				}
 				else
 				{
-					Notification.show("Error", "Could not update all desired quantities", Type.ERROR_MESSAGE);
+					Notification.show("Error", "Could not update all " + caption, Type.ERROR_MESSAGE);
 				}
 				
 				products.refreshRowCache();
 			}
 		});
+		
 		VerticalLayout setAllLayout = new VerticalLayout(newval, setAllSave);
 		setAll.setContent(setAllLayout);
 		setAllLayout.setSpacing(true);
-		HorizontalLayout dataControls = new HorizontalLayout(setAll);
-		addComponent(dataControls);
+		
+		return setAll;
 	}
 	
 	
