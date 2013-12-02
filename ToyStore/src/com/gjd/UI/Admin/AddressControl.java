@@ -31,7 +31,8 @@ public class AddressControl extends FormLayout {
 	{
 		super();
 		this.address = address;
-		this.backup = new Address(address.getId(), address.getLine1(), address.getLine2(), address.getCity(), address.getState().getId(), address.getZip());
+		int state = address.getState() == null ? -1 : address.getState().getId();
+		this.backup = new Address(address.getId(), address.getLine1(), address.getLine2(), address.getCity(), state , address.getZip());
 		buildMainLayout();
 	}
 
@@ -49,22 +50,24 @@ public class AddressControl extends FormLayout {
 		line1.setValue(address.getLine1());
 		addComponent(line1);
 		line1.setRequired(true);
+		line1.setNullRepresentation("");
 		
 		TextField line2 = new TextField("Line 2", item.getItemProperty("line2"));
 		line2.addValidator(new BeanValidator(Address.class, "line2"));
 		line2.setWidth("250px");
+		line2.setNullRepresentation("");
 		addComponent(line2);
 		
 		TextField city = new TextField("City", item.getItemProperty("city"));
 		city.addValidator(new BeanValidator(Address.class, "city"));
 		city.setWidth("250px");
-		addComponent(city);
 		city.setRequired(true);
+		city.setNullRepresentation("");
+		addComponent(city);
 		
 		
 		NativeSelect state = new NativeSelect("State", stateBeans);
-		state.setPropertyDataSource(item.getItemProperty("state"));
-		state.setWidth("250px");
+		
 		try
 		{
 			DatabaseConnection.getInstance().loadStates();
@@ -81,6 +84,11 @@ public class AddressControl extends FormLayout {
 			state.setEnabled(false);
 		}
 		
+		
+		state.setPropertyDataSource(item.getItemProperty("state"));
+		state.setWidth("250px");
+		state.markAsDirty();
+		
 		addComponent(state);
 		state.setRequired(true);
 		state.setNullSelectionAllowed(false);
@@ -89,8 +97,9 @@ public class AddressControl extends FormLayout {
 		zip.addValidator(new BeanValidator(Address.class, "zip"));
 		System.out.println(zip.isBuffered());
 		zip.setWidth("250px");
-		addComponent(zip);
 		zip.setRequired(true);
+		zip.setNullRepresentation("");
+		addComponent(zip);
 
 	}
 	

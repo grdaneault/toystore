@@ -59,6 +59,11 @@ public class AddressManager extends VerticalLayout {
 		addComponent(buttons);
 		
 	}
+
+	public Address getAddress()
+	{
+		return address;
+	}
 	
 
 }

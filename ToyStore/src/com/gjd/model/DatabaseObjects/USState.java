@@ -26,7 +26,10 @@ public class USState implements Serializable {
 	
 	public static void setState(USState state)
 	{
-		states.put(state.id, state);
+		if (states.get(state.getId()) == null)
+		{
+			states.put(state.id, state);
+		}
 	}
 	
 	public int getId() {

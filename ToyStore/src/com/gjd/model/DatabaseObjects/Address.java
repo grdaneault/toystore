@@ -108,12 +108,21 @@ public class Address implements Serializable{
 	}
 
 	public boolean isNew() {
-		return false;
+		return id == -1;
 	}
-	
+
 	public String toString()
 	{
-		return line1 + "\n" + (line2 == null ? "" : line2) + "\n" + city + " " + state.toString() + ", " + zip; 
+		return line1 + "\n" + ((line2 == null || line2.equals("")) ? "" : line2 + "\n") + city + " " + state.toString() + ", " + zip; 
+	}
+	
+	public String toHtmlString()
+	{
+		if (id == -1 || state == null)
+		{
+			return "New Address...";
+		}
+		return line1 + "<br />" + ((line2 == null || line2.equals("")) ? "" : line2 + "<br />") + city + " " + state.toString() + ", " + zip; 
 	}
 	
 }

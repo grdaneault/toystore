@@ -4,9 +4,10 @@ import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.gjd.UI.Admin.BrandControl;
+import com.gjd.UI.Admin.BrandManager;
 import com.gjd.UI.Admin.ProductTypeManager;
 import com.gjd.UI.Admin.StoreManager;
+import com.gjd.UI.Admin.VendorControl;
 import com.gjd.UI.ProductControls.ProductTable;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
@@ -46,6 +47,10 @@ public class ToystoreUI extends UI implements Command {
 	private Store store;
 	private Label headerLbl;
 	private MenuItem productTypeAdmin;
+
+	private MenuItem vendorAdminLogin;
+
+	private MenuItem vendorAdminEdit;
 	
 	@Override
 	protected void init(VaadinRequest request) {
@@ -62,9 +67,13 @@ public class ToystoreUI extends UI implements Command {
 		headerLbl.addStyleName("store_header");
 		
 		MenuBar menu = new MenuBar();
+		menu.setAutoOpen(true);
 		menu.setWidth("100%");
 		storeSelect  = menu.addItem("Store Manager", this);
-		vendorAdmin = menu.addItem("Vendors", this);
+		vendorAdmin = menu.addItem("Vendors", null);
+		
+		vendorAdminEdit = vendorAdmin.addItem("Manage Vendors", this);
+		vendorAdminLogin = vendorAdmin.addItem("Vendor Login", this);
 		brandAdmin = menu.addItem("Brands", this);
 		productTypeAdmin = menu.addItem("Product Types", this);
 		webStore = menu.addItem("Launch Web Store", this);
@@ -93,7 +102,7 @@ public class ToystoreUI extends UI implements Command {
 		{
 			createStoreTable();
 		}
-		else if (selectedItem == vendorAdmin)
+		else if (selectedItem == vendorAdminEdit)
 		{
 			createVendorTable();
 		}
@@ -123,12 +132,13 @@ public class ToystoreUI extends UI implements Command {
 	private void createVendorTable()
 	{
 		getPage().setTitle("Vendor Editor");
+		mainContent.addComponent(new VendorControl());
 	}
 
 	private void createBrandTable()
 	{
 		getPage().setTitle("Brand Editor");
-		mainContent.addComponent(new BrandControl());
+		mainContent.addComponent(new BrandManager());
 	}
 
 	private void createStoreTable()

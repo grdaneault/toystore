@@ -565,4 +565,62 @@ public class DatabaseConnection {
 			ex.printStackTrace(System.err);
 		}
 	}
+
+	public int createOrder(int sku, int store_id)
+	{
+		try
+		{
+			StringBuilder query = new StringBuilder("INSERT INTO `Order` (date, filled, quantity, SKU, store_id, vendor_id) ");
+			query.append("SELECT NOW( ) AS date, 0 AS filled, (desired_quantity - quantity - IFNULL( ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append(" , 0)) AS quantity, Inventory.SKU, store_id, vendor_id ");
+			query.append("FROM  `Inventory` JOIN Product ON Product.SKU = Inventory.SKU ");
+			query.append("WHERE store_id = ? ");
+			query.append("AND (desired_quantity - quantity - IFNULL( ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append(", 0)) > 0 ");
+			query.append("AND Inventory.SKU = ? ");
+			System.out.println(query);
+			PreparedStatement pst = conn.prepareStatement(query.toString());
+			
+			pst.setInt(1, store_id);
+			pst.setInt(2, sku);
+			
+			return pst.executeUpdate();
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return -1;
+		}
+		
+	}
+	
+	public int createAllStoreOrders(int store_id)
+	{
+		try
+		{
+			StringBuilder query = new StringBuilder("INSERT INTO `Order` (date, filled, quantity, SKU, store_id, vendor_id) ");
+			query.append("SELECT NOW( ) AS date, 0 AS filled, (desired_quantity - quantity - IFNULL( ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append(" , 0)) AS quantity, Inventory.SKU, store_id, vendor_id ");
+			query.append("FROM  `Inventory` JOIN Product ON Product.SKU = Inventory.SKU ");
+			query.append("WHERE store_id = ? ");
+			query.append("AND (desired_quantity - quantity - IFNULL( ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append(", 0)) > 0 ");
+			System.out.println(query);
+			PreparedStatement pst = conn.prepareStatement(query.toString());
+			
+			pst.setInt(1, store_id);
+			
+			return pst.executeUpdate();
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return -1;
+		}
+		
+	}
 }

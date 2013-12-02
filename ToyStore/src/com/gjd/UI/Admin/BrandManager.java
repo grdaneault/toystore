@@ -17,7 +17,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.VerticalLayout;
 
-public class BrandControl extends VerticalLayout
+public class BrandManager extends VerticalLayout
 {
 
 	SQLContainer brandContainer;
@@ -58,13 +58,12 @@ public class BrandControl extends VerticalLayout
 			});
 			return remove;
 		}
-
 	}
 
 	private static final long serialVersionUID = 7949836029759808474L;
 	private Table brandTable;
 
-	public BrandControl()
+	public BrandManager()
 	{
 		setMargin(true);
 		setSpacing(true);
@@ -132,20 +131,11 @@ public class BrandControl extends VerticalLayout
 				{
 					brandContainer.commit();
 					brandTable.refreshRowCache();
-					int index = getComponentIndex(brandTable);
-					replaceComponent(brandTable, brandTable);
-					
-					
-					
-					Notification n = new Notification("Success", "Brand created", Notification.Type.TRAY_NOTIFICATION);
-					n.setDelayMsec(500);
-					n.show(Page.getCurrent());
+					Notification.show("Success", "Brand created", Notification.Type.HUMANIZED_MESSAGE);
 				}
 				catch (SQLException e)
 				{
-					Notification n = new Notification("Error", "Error creating brand:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
-					n.show(Page.getCurrent());
-					e.printStackTrace();
+					Notification.show("Error", "Error creating brand:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -162,15 +152,11 @@ public class BrandControl extends VerticalLayout
 				try
 				{
 					brandContainer.commit();
-					Notification n = new Notification("Success", "Brands saved", Notification.Type.TRAY_NOTIFICATION);
-					n.setDelayMsec(500);
-					n.show(Page.getCurrent());
+					Notification.show("Success", "Brands saved", Notification.Type.HUMANIZED_MESSAGE);
 				}
 				catch (SQLException e)
 				{
-					Notification n = new Notification("Error", "Error updating brands" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
-					n.show(Page.getCurrent());
-					e.printStackTrace();
+					Notification.show("Error", "Error updating brands" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -187,15 +173,11 @@ public class BrandControl extends VerticalLayout
 				try
 				{
 					brandContainer.rollback();
-					Notification n = new Notification("Success", "Brands reset", Notification.Type.TRAY_NOTIFICATION);
-					n.setDelayMsec(500);
-					n.show(Page.getCurrent());
+					Notification.show("Success", "Brands reset", Notification.Type.HUMANIZED_MESSAGE);
 				}
 				catch (SQLException e)
 				{
-					Notification n = new Notification("Error", "Error rolling back transaction:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
-					n.show(Page.getCurrent());
-					e.printStackTrace();
+					Notification.show("Error", "Error rolling back transaction:" + e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
 				}
 			}
 		});
