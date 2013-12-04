@@ -1,12 +1,30 @@
 package com.gjd.model.DatabaseObjects;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class Customer {
+	
 	private int id;
+	
+	@NotNull
+	@Size(max = 45)
 	private String first;
+	
 	private String mi;
+	
+	@NotNull
+	@Size(max = 45)
 	private String last;
+	
 	private Address address;
+	
+	@NotNull
+	@Size(max = 45)
 	private String phone;
+	
+	@NotNull
+	@Size(max = 255)
 	private String email;
 
 	/**

@@ -5,12 +5,16 @@ import java.sql.SQLException;
 import javax.servlet.annotation.WebServlet;
 
 import com.gjd.UI.Admin.BrandManager;
+import com.gjd.UI.Admin.LoginWindow;
 import com.gjd.UI.Admin.ProductTypeManager;
 import com.gjd.UI.Admin.StoreManager;
+import com.gjd.UI.Admin.VendorAccessManager;
 import com.gjd.UI.Admin.VendorControl;
 import com.gjd.UI.ProductControls.ProductTable;
+import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
+import com.gjd.model.DatabaseObjects.Vendor;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
@@ -44,11 +48,13 @@ public class ToystoreUI extends UI implements Command {
 	private MenuItem brandAdmin;
 	private MenuItem webStore;
 	
+	private Vendor vendor;
 	private Store store;
 	private Label headerLbl;
 	private MenuItem productTypeAdmin;
 
 	private MenuItem vendorAdminLogin;
+	private MenuItem vendorAdminLogout;
 
 	private MenuItem vendorAdminEdit;
 	
@@ -73,7 +79,10 @@ public class ToystoreUI extends UI implements Command {
 		vendorAdmin = menu.addItem("Vendors", null);
 		
 		vendorAdminEdit = vendorAdmin.addItem("Manage Vendors", this);
-		vendorAdminLogin = vendorAdmin.addItem("Vendor Login", this);
+		vendorAdminLogin = vendorAdmin.addItem("Vendor Access", this);
+		vendorAdminLogout = vendorAdmin.addItem("Vendor Logout", this);
+		vendorAdminLogout.setVisible(false);
+		
 		brandAdmin = menu.addItem("Brands", this);
 		productTypeAdmin = menu.addItem("Product Types", this);
 		webStore = menu.addItem("Launch Web Store", this);
@@ -106,6 +115,15 @@ public class ToystoreUI extends UI implements Command {
 		{
 			createVendorTable();
 		}
+		else if (selectedItem == vendorAdminLogin)
+		{
+			createVendorPage();
+		}
+		else if (selectedItem == vendorAdminLogout)
+		{
+			vendor = null;
+			vendorAdminLogout.setVisible(false);
+		}
 		else if (selectedItem == brandAdmin)
 		{
 			createBrandTable();
@@ -118,7 +136,6 @@ public class ToystoreUI extends UI implements Command {
 		{
 			getPage().setLocation("WebStore");
 		}
-		
 	}
 
 	private void createProductTypeTable()
@@ -133,6 +150,36 @@ public class ToystoreUI extends UI implements Command {
 	{
 		getPage().setTitle("Vendor Editor");
 		mainContent.addComponent(new VendorControl());
+	}
+	
+	private void createVendorPage()
+	{
+		getPage().setTitle("Vendor Access");
+		final VendorAccessManager vam = new VendorAccessManager();
+		if (vendor == null)
+		{
+			LoginWindow loginWindow = new LoginWindow("Vendor", "Vendor", "vendor_name", "vendor_id");
+			loginWindow.addLoginListener(vam);
+			loginWindow.addLoginListener(new SuccessfulLoginListener()
+			{
+				
+				public void successfulLogin(LoginWindow loginWindow)
+				{
+					vendorAdminLogout.setVisible(true);
+					vendor = vam.getVendor();
+				}
+			});
+			loginWindow.addCloseListener(vam);
+			getUI().addWindow(loginWindow);
+
+		}
+		else
+		{
+			vam.login(vendor);
+			vam.createUI();
+		}
+		
+		mainContent.addComponent(vam);
 	}
 
 	private void createBrandTable()

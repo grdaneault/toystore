@@ -623,4 +623,68 @@ public class DatabaseConnection {
 		}
 		
 	}
+
+	public boolean checkRecordExists(String table, Object... where)
+	{
+		try
+		{
+			StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM ");
+			query.append(table);
+			query.append(" WHERE ");
+			for (int i = 0; i < where.length; i+= 2)
+			{
+				if (i != 0)
+				{
+					query.append(" AND ");
+				}
+				
+				query.append(where[i]);
+				query.append(" = ? ");
+			}
+			
+			System.out.println(query.toString());
+			PreparedStatement pst = conn.prepareStatement(query.toString());
+			
+			for (int i = 0; i < where.length / 2; i++)
+			{
+				pst.setObject(i + 1, where[i * 2 + 1]);
+			}
+			
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			
+			return rs.getInt(1) == 1;
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+		
+	}
+
+	public Vendor getVendorById(int vendorId) throws SQLException
+	{
+		ResultSet rs = getOneById("Vendor", "vendor_id", vendorId);
+		if (rs == null) return null;
+		return new Vendor(rs.getInt("vendor_id"), rs.getString("vendor_name"), rs.getInt("address_id"));
+	}
+
+	public boolean fillOrder(int orderId)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = true WHERE order_id = ? LIMIT 1");
+			pst.setInt(1, orderId);
+			
+			int n = pst.executeUpdate();
+			System.out.println(n + " rows updated in order fill.");
+			return 1 == n;
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+			return false;
+		}
+	}
 }

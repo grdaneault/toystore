@@ -2,8 +2,11 @@ package com.gjd.UI.ProductControls;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.gjd.model.DatabaseObjects.Vendor;
+import com.vaadin.data.Item;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.sqlcontainer.RowItem;
 import com.vaadin.data.util.sqlcontainer.SQLUtil;
@@ -12,14 +15,20 @@ import com.vaadin.data.util.sqlcontainer.query.OrderBy;
 import com.vaadin.data.util.sqlcontainer.query.generator.StatementHelper;
 import com.vaadin.data.util.sqlcontainer.query.generator.filter.QueryBuilder;
 
-public class ProductFreeformStatementDelegate implements FreeformStatementDelegate
+public class OrderFreeformStatementDelegate implements FreeformStatementDelegate
 {
-
-	private static final long serialVersionUID = -3686697130823749358L;
-
+	
+	private static final long serialVersionUID = 2096254224895263940L;
 	private List<Filter> filters;
 	private List<OrderBy> orderBys;
 
+	private Vendor vendor;
+	public OrderFreeformStatementDelegate(Vendor vendor)
+	{
+		this.vendor = vendor;
+	}
+
+	
 	@Override
 	public String getQueryString(int offset, int limit) throws UnsupportedOperationException
 	{
@@ -66,17 +75,12 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 	public StatementHelper getQueryStatement(int offset, int limit) throws UnsupportedOperationException
 	{
 		StatementHelper sh = new StatementHelper();
-		StringBuffer query = new StringBuffer(
-				"SELECT Product.* , Vendor.vendor_name as vendor_name, Brand.brand_name as brand_name, ProductType.type_name as type_name ");
-		query.append("FROM  `Product` ");
-		query.append("JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id ");
-		query.append("JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id ");
-		query.append("JOIN  `ProductType` ON  `Product`.type_id =  `ProductType`.type_id ");
+		StringBuffer query = new StringBuffer("SELECT `Order`.*, Product.product_name, Product.MSRP, Brand.brand_name ");
+		query.append("FROM `Order` ");
+		query.append("JOIN  Product ON `Order`.SKU = `Product`.SKU ");
+		query.append("JOIN Brand ON `Product`.brand_id = `Brand`.brand_id ");
 
-		if (filters != null)
-		{
-			query.append(QueryBuilder.getWhereStringForFilters(filters, sh));
-		}
+		query.append(getWhere(sh));
 
 		query.append(getOrderByString());
 		if (offset != 0 || limit != 0)
@@ -89,6 +93,33 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 		sh.setQueryString(query.toString());
 		return sh;
 	}
+
+	private Object getWhere(StatementHelper sh)
+	{
+		
+		if (filters == null)
+		{
+			if (vendor == null)
+			{
+				return "";
+			}
+			else
+			{
+				return " WHERE `Order`.vendor_id = " + vendor.getId() + " ";
+			}
+		}
+		else
+		{
+			String where = QueryBuilder.getWhereStringForFilters(filters, sh);
+		
+			if (where.contains("WHERE"))
+			{
+				return where + " AND `Order`.vendor_id = " + vendor.getId() + " ";
+			}
+			return " WHERE `Order`.vendor_id = " + vendor.getId() + " ";
+		}
+	}
+
 
 	private String getOrderByString()
 	{
@@ -121,11 +152,11 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 	public StatementHelper getCountStatement() throws UnsupportedOperationException
 	{
 		StatementHelper sh = new StatementHelper();
-		StringBuffer query = new StringBuffer("SELECT COUNT(*) FROM Product JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id JOIN  `ProductType` ON  `Product`.type_id =  `ProductType`.type_id ");
-		if (filters != null)
-		{
-			query.append(QueryBuilder.getWhereStringForFilters(filters, sh));
-		}
+		StringBuffer query = new StringBuffer("SELECT COUNT(*) FROM `Order` JOIN  Product ON `Order`.SKU = `Product`.SKU JOIN Brand ON `Product`.brand_id = `Brand`.brand_id ");
+
+		query.append(getWhere(sh));
+
+		System.out.println(query.toString());
 		sh.setQueryString(query.toString());
 		return sh;
 	}
@@ -134,10 +165,10 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 	public StatementHelper getContainsRowQueryStatement(Object... keys) throws UnsupportedOperationException
 	{
 		StatementHelper sh = new StatementHelper();
-        StringBuffer query = new StringBuffer("SELECT * FROM Product WHERE SKU = ?");
-        sh.addParameterValue(keys[0]);
-        sh.setQueryString(query.toString());
-        return sh;
+		StringBuffer query = new StringBuffer("SELECT * FROM `Order` WHERE order_id = ?");
+		sh.addParameterValue(keys[0]);
+		sh.setQueryString(query.toString());
+		System.out.println(query.toString());
+		return sh;
 	}
-
 }

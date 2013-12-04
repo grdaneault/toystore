@@ -1,5 +1,9 @@
 package com.gjd.model.DatabaseObjects;
 
+import java.sql.SQLException;
+
+import com.gjd.model.DatabaseConnection;
+
 public class Vendor {
 	private int id;
 	private String name;
@@ -32,6 +36,11 @@ public class Vendor {
 		this.address = address;
 	}
 	
+	public Vendor(int id, String name, int addressId) throws SQLException
+	{
+		this(id, name, DatabaseConnection.getInstance().getAddressById(addressId));
+	}
+
 	public boolean isNew() {
 		return id == -1;
 	}
