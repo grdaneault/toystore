@@ -93,13 +93,23 @@ public class Purchase {
 		total = 0;
 		for (PurchaseItem p : items)
 		{
-			total += p.getProduct().getPrice();
+			total += p.getProduct().getPrice() * p.getQuantity();
 		}
 	}
 	
 	public void addPurchaseItem(PurchaseItem pi)
 	{
 		items.add(pi);
+	}
+	public int getTotalItems()
+	{
+		int itemCount = 0;
+		for (PurchaseItem p : items)
+		{
+			itemCount += p.getQuantity();
+		}
+		
+		return itemCount;
 	}
 	
 }

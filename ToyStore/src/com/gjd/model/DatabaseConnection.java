@@ -602,14 +602,15 @@ public class DatabaseConnection {
 			query.append("FROM  `Inventory` JOIN Product ON Product.SKU = Inventory.SKU ");
 			query.append("WHERE store_id = ? ");
 			query.append("AND (desired_quantity - quantity - IFNULL( ");
-			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 AND store_id = ?) ");
 			query.append(", 0)) > 0 ");
 			query.append("AND Inventory.SKU = ? ");
 			System.out.println(query);
 			PreparedStatement pst = conn.prepareStatement(query.toString());
 			
 			pst.setInt(1, store_id);
-			pst.setInt(2, sku);
+			pst.setInt(2, store_id);
+			pst.setInt(3, sku);
 			
 			return pst.executeUpdate();
 		}
@@ -632,12 +633,13 @@ public class DatabaseConnection {
 			query.append("FROM  `Inventory` JOIN Product ON Product.SKU = Inventory.SKU ");
 			query.append("WHERE store_id = ? ");
 			query.append("AND (desired_quantity - quantity - IFNULL( ");
-			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
+			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 AND store_id = ?) ");
 			query.append(", 0)) > 0 ");
 			System.out.println(query);
 			PreparedStatement pst = conn.prepareStatement(query.toString());
 			
 			pst.setInt(1, store_id);
+			pst.setInt(2, store_id);
 			
 			return pst.executeUpdate();
 		}
@@ -825,14 +827,18 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO `Purchase` (store_id, customer_id, payment_type_id, total, date) VALUES (?, ?, ?, ?, NOW() )");
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO `Purchase` (store_id, customer_id, payment_type_id, total, date) VALUES (?, ?, ?, ?, NOW() )", Statement.RETURN_GENERATED_KEYS);
 			
 			pst.setInt(1, purchase.getStore().getId());
 			pst.setInt(2, purchase.getCustomer().getId());
 			pst.setInt(3,  purchase.getPaymentType().getId());
 			pst.setObject(4, purchase.getTotal());
 			
-			return 1 == pst.executeUpdate();
+			pst.executeUpdate();
+			ResultSet rs = pst.getGeneratedKeys(); 
+			rs.next();
+			purchase.setId(rs.getInt(1));
+			return true;
 		}
 		catch (SQLException e)
 		{
@@ -846,13 +852,39 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			int remainingInventory = getAvailableQuantity(pi.getProduct(), pi.getPurchase().getStore());
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO PurchaseItems (purchase_id, SKU, quantity) VALUES (?, ?, ?);");
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO PurchaseItems (purchase_id, SKU, quantity, price) VALUES (?, ?, ?, ?);");
+			pst.setInt(1, pi.getPurchase().getId());
+			pst.setInt(2, pi.getProduct().getSKU());
+			pst.setInt(3, pi.getQuantity());
+			pst.setFloat(4, pi.getProduct().getPrice());
+			
+			if (1 == pst.executeUpdate())
+			{
+				return  decrementQuantity(pi);
+			}
 			
 		}
 		catch (SQLException e)
 		{
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private boolean decrementQuantity(PurchaseItem pi)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE Inventory SET quantity = quantity - ? WHERE SKU = ? AND store_id = ?;");
+			pst.setInt(1, pi.getQuantity());
+			pst.setInt(2, pi.getProduct().getSKU());
+			pst.setInt(3, pi.getPurchase().getStore().getId());
+			
+			return 1 == pst.executeUpdate();
+			
+		}
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 		return false;

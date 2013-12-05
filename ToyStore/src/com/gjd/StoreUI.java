@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 
 import com.gjd.model.DatabaseConnection;
+import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.PaymentType;
 import com.gjd.model.DatabaseObjects.Product;
 import com.gjd.model.DatabaseObjects.Purchase;
@@ -55,6 +56,8 @@ public class StoreUI extends UI
 	private VerticalLayout layout;
 
 	private Label item;
+
+	private Table order;
 	
 	protected void init(VaadinRequest request)
 	{
@@ -100,7 +103,7 @@ public class StoreUI extends UI
 		headerLbl.addStyleName("store_header");
 		layout.addComponent(headerLbl);
 		content.addComponent(storeSelect);
-		Table order = new Table();
+		order = new Table();
 		final BeanItemContainer<PurchaseItem> purchaseItemContainer = new BeanItemContainer<PurchaseItem>(PurchaseItem.class);
 		order.setContainerDataSource(purchaseItemContainer);
 		order.addGeneratedColumn("price", new ColumnGenerator()
@@ -126,6 +129,11 @@ public class StoreUI extends UI
 		});
 		
 		order.setVisibleColumns("product", "price", "quantity", "total price");
+		order.setFooterVisible(true);
+		order.setColumnFooter("product", "Total");
+		order.setColumnFooter("quantity", "0");
+		order.setColumnFooter("total price", "0");
+		
 
 		HorizontalLayout addItemContainer = new HorizontalLayout();
 		final TextField itemSKU = new TextField("SKU");
@@ -183,6 +191,14 @@ public class StoreUI extends UI
 				PurchaseItem pi = new PurchaseItem(product, quantity, purchase);
 				purchase.addPurchaseItem(pi);
 				purchaseItemContainer.addBean(pi);
+				itemSKU.setValue("");
+				itemSKU.focus();
+				itemQuantity.setValue("1");
+				
+				purchase.calculateTotal();
+				order.setColumnFooter("quantity", "" + purchase.getTotalItems());
+				order.setColumnFooter("total price", "" + purchase.getTotal());
+				
 			}
 		});
 		
@@ -205,6 +221,7 @@ public class StoreUI extends UI
 		addItemContainer.setComponentAlignment(itemSKU, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(itemQuantity, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(add, Alignment.BOTTOM_LEFT);
+		addItemContainer.setComponentAlignment(checkout, Alignment.BOTTOM_LEFT);
 		
 		item = new Label("");
 		
@@ -219,10 +236,10 @@ public class StoreUI extends UI
 
 	private void createCheckoutWindow()
 	{
-		Window checkoutOptions = new Window("Checkout");
+		final Window checkoutOptions = new Window("Checkout");
 		VerticalLayout checkoutLayout = new VerticalLayout();
 		
-		TextField customerId = new TextField("Enter your Customer ID");
+		final TextField customerId = new TextField("Enter your Customer ID");
 		
 		ComboBox paymentType = new ComboBox("Enter payment method");
 		ArrayList<PaymentType> paymentTypes = DatabaseConnection.getInstance().getPaymentTypes();
@@ -252,18 +269,56 @@ public class StoreUI extends UI
 			{
 				DatabaseConnection.getInstance().beginTransaction();
 				
+				Customer c;
+				try
+				{
+					c = DatabaseConnection.getInstance().getCustomerById(Integer.valueOf(customerId.getValue()));
+					purchase.setCustomer(c);
+				}
+				catch (SQLException ex)
+				{
+					ex.printStackTrace();
+					Notification.show("Unknown Customer", "Unable to find customer with ID " + customerId.getValue(), Type.ERROR_MESSAGE);
+					DatabaseConnection.getInstance().endTransaction();
+					return;
+				}
+				
 				boolean good = true;
+				purchase.calculateTotal();
 				good = good && DatabaseConnection.getInstance().createOrder(purchase);
 				
 				for (PurchaseItem pi : purchase.getItems())
 				{
-					good = good && DatabaseConnection.getInstance().savePurchaseItem(pi);
+					int remainingQuantity = DatabaseConnection.getInstance().getAvailableQuantity(pi.getProduct(), pi.getPurchase().getStore());
+					if (remainingQuantity >= pi.getQuantity())
+					{
+						good = good && DatabaseConnection.getInstance().savePurchaseItem(pi);
+						if (!good)
+						{
+							Notification.show("Unable to complete the purchase", "Error adding item " + pi.getProduct(), Type.ERROR_MESSAGE);
+							break;
+						}
+					}
+					else
+					{
+						good = false;
+						Notification.show("Unable to complete the purchase", "Insufficient quantity of " + pi.getProduct(), Type.ERROR_MESSAGE);
+						break;
+					}
 				}
 				
-				if (!good)
+				if (good)
+				{
+					Notification.show("Thank You, " + c.getFirst(), "Have a nice day", Type.HUMANIZED_MESSAGE);
+					checkoutOptions.close();
+					order.removeAllItems();
+					purchase = new Purchase(store);
+					order.setColumnFooter("quantity", "0");
+					order.setColumnFooter("total price", "0");
+				}
+				else
 				{
 					DatabaseConnection.getInstance().rollback();
-					Notification.show("Unable to complete the purchase", "", Type.ERROR_MESSAGE);
 				}
 				
 				DatabaseConnection.getInstance().endTransaction();
@@ -272,6 +327,7 @@ public class StoreUI extends UI
 		
 		checkoutLayout.addComponent(customerId);
 		checkoutLayout.addComponent(paymentType);
+		checkoutLayout.addComponent(completeCheckout);
 		checkoutLayout.setSpacing(true);
 		checkoutLayout.setMargin(true);
 		

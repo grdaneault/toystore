@@ -151,7 +151,10 @@ public class VendorAccessManager extends VerticalLayout implements SuccessfulLog
 					{
 						int orderId = (Integer) orders.getItem(itemId).getItemProperty("order_id").getValue();
 						good = good && DatabaseConnection.getInstance().fillOrder(orderId);
-						orders.getItem(itemId).getItemProperty("filled").setValue(true);
+						if (good) 
+						{
+							orders.getItem(itemId).getItemProperty("filled").setValue(true);
+						}
 					}
 					
 					if (good)

@@ -47,6 +47,7 @@ public class ToystoreUI extends UI implements Command {
 	private MenuItem vendorAdmin;
 	private MenuItem brandAdmin;
 	private MenuItem webStore;
+	private MenuItem physicalStore;
 	
 	private Vendor vendor;
 	private Store store;
@@ -86,6 +87,7 @@ public class ToystoreUI extends UI implements Command {
 		brandAdmin = menu.addItem("Brands", this);
 		productTypeAdmin = menu.addItem("Product Types", this);
 		webStore = menu.addItem("Launch Web Store", this);
+		physicalStore = menu.addItem("Launch POS", this);
 		
 		headerLbl.setContentMode(ContentMode.HTML);
 		
@@ -135,6 +137,10 @@ public class ToystoreUI extends UI implements Command {
 		else if (selectedItem == webStore)
 		{
 			getPage().setLocation("WebStore");
+		}
+		else if (selectedItem == physicalStore)
+		{
+			getPage().setLocation("PhysicalStore");
 		}
 	}
 
