@@ -14,8 +14,11 @@ import com.gjd.model.DatabaseObjects.Address;
 import com.gjd.model.DatabaseObjects.Brand;
 import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.DayHour;
+import com.gjd.model.DatabaseObjects.PaymentType;
 import com.gjd.model.DatabaseObjects.Product;
 import com.gjd.model.DatabaseObjects.ProductType;
+import com.gjd.model.DatabaseObjects.Purchase;
+import com.gjd.model.DatabaseObjects.PurchaseItem;
 import com.gjd.model.DatabaseObjects.Store;
 import com.gjd.model.DatabaseObjects.USState;
 import com.gjd.model.DatabaseObjects.Vendor;
@@ -751,5 +754,126 @@ public class DatabaseConnection {
 			ex.printStackTrace();
 			return 0;
 		}
+	}
+
+	public ArrayList<PaymentType> getPaymentTypes()
+	{
+		ArrayList<PaymentType> types = new ArrayList<PaymentType>();
+
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT * FROM PaymentType");
+			ResultSet rs = pst.executeQuery();
+
+			while (rs.next())
+			{
+				types.add(new PaymentType(rs.getInt("payment_type_id"), rs.getString("payment_type_name")));
+			}
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		return types;
+	}
+
+	public boolean beginTransaction()
+	{
+		try
+		{
+			conn.setAutoCommit(false);
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean endTransaction()
+	{
+		try
+		{
+			conn.commit();
+			conn.setAutoCommit(true);
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean rollback()
+	{
+		try
+		{
+			conn.rollback();
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean createOrder(Purchase purchase)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO `Purchase` (store_id, customer_id, payment_type_id, total, date) VALUES (?, ?, ?, ?, NOW() )");
+			
+			pst.setInt(1, purchase.getStore().getId());
+			pst.setInt(2, purchase.getCustomer().getId());
+			pst.setInt(3,  purchase.getPaymentType().getId());
+			pst.setObject(4, purchase.getTotal());
+			
+			return 1 == pst.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+
+	public boolean savePurchaseItem(PurchaseItem pi)
+	{
+		try
+		{
+			int remainingInventory = getAvailableQuantity(pi.getProduct(), pi.getPurchase().getStore());
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO PurchaseItems (purchase_id, SKU, quantity) VALUES (?, ?, ?);");
+			
+		}
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public int getAvailableQuantity(Product product, Store store)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT quantity FROM Inventory WHERE SKU = ? AND store_id = ? LIMIT 1;");
+			pst.setInt(1, product.getSKU());
+			pst.setInt(2, store.getId());
+			
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			return rs.getInt(1);
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace();
+		}
+		return 0;
 	}
 }

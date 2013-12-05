@@ -89,6 +89,8 @@ public class VendorAccessManager extends VerticalLayout implements SuccessfulLog
 			orders.addGeneratedColumn("filled", new ColumnGenerator()
 			{
 				
+				private static final long serialVersionUID = -7474191228247498575L;
+
 				@Override
 				public Object generateCell(final CustomTable source, final Object itemId, final Object columnId)
 				{
@@ -104,6 +106,9 @@ public class VendorAccessManager extends VerticalLayout implements SuccessfulLog
 						fill.addClickListener(new ClickListener()
 						{
 							
+							private static final long serialVersionUID = -5669655435882335184L;
+
+							@SuppressWarnings("unchecked")
 							@Override
 							public void buttonClick(ClickEvent event)
 							{
@@ -135,6 +140,9 @@ public class VendorAccessManager extends VerticalLayout implements SuccessfulLog
 			fillSelected.addClickListener(new ClickListener()
 			{
 				
+				private static final long serialVersionUID = -5875137607657529381L;
+
+				@SuppressWarnings("unchecked")
 				@Override
 				public void buttonClick(ClickEvent event)
 				{

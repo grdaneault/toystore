@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 
 import com.gjd.model.DatabaseConnection;
+import com.gjd.model.DatabaseObjects.PaymentType;
 import com.gjd.model.DatabaseObjects.Product;
 import com.gjd.model.DatabaseObjects.Purchase;
 import com.gjd.model.DatabaseObjects.PurchaseItem;
@@ -17,6 +18,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -27,11 +29,14 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")
 @Theme("toystore")
@@ -166,7 +171,7 @@ public class StoreUI extends UI
 		itemQuantity.setValue("1");
 		
 		Button add = new Button("Scan Item");
-		
+		add.setClickShortcut(KeyCode.ENTER);
 		add.addClickListener(new ClickListener()
 		{
 			@Override
@@ -176,13 +181,26 @@ public class StoreUI extends UI
 				System.out.println(product + " FROM STORE " + store);
 				int quantity = Integer.valueOf(itemQuantity.getValue());
 				PurchaseItem pi = new PurchaseItem(product, quantity, purchase);
+				purchase.addPurchaseItem(pi);
 				purchaseItemContainer.addBean(pi);
+			}
+		});
+		
+		Button checkout = new Button("Checkout");
+		checkout.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				createCheckoutWindow();
 			}
 		});
 		
 		addItemContainer.addComponent(itemSKU);
 		addItemContainer.addComponent(itemQuantity);
 		addItemContainer.addComponent(add);
+		addItemContainer.addComponent(checkout);
 		addItemContainer.setSpacing(true);
 		addItemContainer.setComponentAlignment(itemSKU, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(itemQuantity, Alignment.BOTTOM_LEFT);
@@ -197,5 +215,70 @@ public class StoreUI extends UI
 		
 		
 		layout.addComponent(content);
+	}
+
+	private void createCheckoutWindow()
+	{
+		Window checkoutOptions = new Window("Checkout");
+		VerticalLayout checkoutLayout = new VerticalLayout();
+		
+		TextField customerId = new TextField("Enter your Customer ID");
+		
+		ComboBox paymentType = new ComboBox("Enter payment method");
+		ArrayList<PaymentType> paymentTypes = DatabaseConnection.getInstance().getPaymentTypes();
+		for (PaymentType t : paymentTypes)
+		{
+			paymentType.addItem(t);
+		}
+		
+		paymentType.setNullSelectionAllowed(false);
+		paymentType.setNewItemsAllowed(false);
+		
+		paymentType.addValueChangeListener(new ValueChangeListener()
+		{
+			
+			@Override
+			public void valueChange(ValueChangeEvent event)
+			{
+				purchase.setPaymentType((PaymentType) event.getProperty().getValue());
+			}
+		});
+		
+		Button completeCheckout = new Button("Complete Checkout");
+		completeCheckout.addClickListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				DatabaseConnection.getInstance().beginTransaction();
+				
+				boolean good = true;
+				good = good && DatabaseConnection.getInstance().createOrder(purchase);
+				
+				for (PurchaseItem pi : purchase.getItems())
+				{
+					good = good && DatabaseConnection.getInstance().savePurchaseItem(pi);
+				}
+				
+				if (!good)
+				{
+					DatabaseConnection.getInstance().rollback();
+					Notification.show("Unable to complete the purchase", "", Type.ERROR_MESSAGE);
+				}
+				
+				DatabaseConnection.getInstance().endTransaction();
+			}
+		});
+		
+		checkoutLayout.addComponent(customerId);
+		checkoutLayout.addComponent(paymentType);
+		checkoutLayout.setSpacing(true);
+		checkoutLayout.setMargin(true);
+		
+		checkoutOptions.setContent(checkoutLayout);
+		checkoutOptions.setWidth(300, Unit.PIXELS);
+		checkoutOptions.center();
+		
+		getUI().addWindow(checkoutOptions);
 	}
 }

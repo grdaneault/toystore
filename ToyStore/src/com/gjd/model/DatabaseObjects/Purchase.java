@@ -1,7 +1,6 @@
 package com.gjd.model.DatabaseObjects;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Purchase {
 	private int id;
@@ -88,4 +87,19 @@ public class Purchase {
 		this.store = store;
 		this.id = -1;
 	}
+	
+	public void calculateTotal()
+	{
+		total = 0;
+		for (PurchaseItem p : items)
+		{
+			total += p.getProduct().getPrice();
+		}
+	}
+	
+	public void addPurchaseItem(PurchaseItem pi)
+	{
+		items.add(pi);
+	}
+	
 }
