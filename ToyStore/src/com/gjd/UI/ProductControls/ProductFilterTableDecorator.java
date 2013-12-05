@@ -8,7 +8,6 @@ import org.tepi.filtertable.FilterDecorator;
 import org.tepi.filtertable.numberfilter.NumberFilterPopupConfig;
 
 import com.vaadin.server.Resource;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.datefield.Resolution;
 
 @SuppressWarnings("serial")

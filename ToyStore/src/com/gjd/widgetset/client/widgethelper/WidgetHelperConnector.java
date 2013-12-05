@@ -22,11 +22,14 @@ import com.vaadin.client.communication.StateChangeEvent;
 @Connect(WidgetHelper.class)
 public class WidgetHelperConnector extends AbstractComponentConnector {
 
+	private static final long serialVersionUID = 3779142944216419317L;
 	WidgetHelperServerRpc rpc = RpcProxy
 			.create(WidgetHelperServerRpc.class, this);
 	
 	public WidgetHelperConnector() {
 		registerRpc(WidgetHelperClientRpc.class, new WidgetHelperClientRpc() {
+			private static final long serialVersionUID = -5585089037108212738L;
+
 			public void alert(String message) {
 				// TODO Do something useful
 				Window.alert(message);

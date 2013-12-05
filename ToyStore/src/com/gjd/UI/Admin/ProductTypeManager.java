@@ -3,12 +3,8 @@ package com.gjd.UI.Admin;
 import java.sql.SQLException;
 
 import com.gjd.model.DatabaseConnection;
-import com.jensjansson.pagedtable.PagedTable;
-import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.TableQuery;
-import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
@@ -19,7 +15,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 public class ProductTypeManager extends VerticalLayout

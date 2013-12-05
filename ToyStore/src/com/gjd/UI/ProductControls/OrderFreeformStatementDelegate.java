@@ -2,11 +2,9 @@ package com.gjd.UI.ProductControls;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.gjd.model.DatabaseObjects.Vendor;
-import com.vaadin.data.Item;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.sqlcontainer.RowItem;
 import com.vaadin.data.util.sqlcontainer.SQLUtil;

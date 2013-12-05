@@ -8,7 +8,6 @@ import com.gjd.UI.ProductControls.PopupEditorColumnGenerator;
 import com.gjd.UI.ProductControls.ProductPagedFilterTable;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
-import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -64,6 +63,8 @@ public class StoreInventoryManager extends VerticalLayout
 		createAllReorders.addClickListener(new ClickListener()
 		{
 			
+			private static final long serialVersionUID = -1278007667812223433L;
+
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -99,6 +100,8 @@ public class StoreInventoryManager extends VerticalLayout
 		createReorder.addClickListener(new ClickListener()
 		{
 			
+			private static final long serialVersionUID = 835592206330134419L;
+
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -142,6 +145,9 @@ public class StoreInventoryManager extends VerticalLayout
 		setAllSave.addClickListener(new ClickListener()
 		{
 			
+			private static final long serialVersionUID = 136452290786345110L;
+
+			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event)
 			{

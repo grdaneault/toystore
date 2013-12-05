@@ -50,6 +50,8 @@ public class PopupEditorColumnGenerator implements ColumnGenerator
 				Button save = new Button("Save");
 				save.addClickListener(new ClickListener()
 				{
+					private static final long serialVersionUID = -2828426393197066513L;
+
 					@Override
 					public void buttonClick(ClickEvent event)
 					{

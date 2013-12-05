@@ -3,6 +3,7 @@ package com.gjd.model.DatabaseObjects;
 import java.io.Serializable;
 import java.sql.Time;
 
+@SuppressWarnings("deprecation")
 public class DayHour implements Serializable
 {
 	private static final long serialVersionUID = -3212421679974875839L;
@@ -41,7 +42,6 @@ public class DayHour implements Serializable
 		return close;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public boolean isClosed()
 	{
 		return open.getHours() == close.getHours() && open.getMinutes() == close.getMinutes() && open.getSeconds() == close.getSeconds();

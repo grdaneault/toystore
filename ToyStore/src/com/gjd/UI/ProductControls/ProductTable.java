@@ -50,6 +50,8 @@ public class ProductTable extends PagedTable
 		addGeneratedColumn("image", new ColumnGenerator()
 		{
 			
+			private static final long serialVersionUID = 8322041831318002412L;
+
 			@Override
 			public Object generateCell(Table source, Object itemId, Object columnId)
 			{
@@ -59,6 +61,8 @@ public class ProductTable extends PagedTable
 		addGeneratedColumn("product", new ColumnGenerator()
 		{
 			
+			private static final long serialVersionUID = -8924015812443866009L;
+
 			@Override
 			public Object generateCell(Table source, Object itemId, Object columnId)
 			{
@@ -103,6 +107,7 @@ public class ProductTable extends PagedTable
 
 	private class PopularityFilter implements Filter
 	{
+		private static final long serialVersionUID = -797591000146646269L;
 		private Collection<Product> topSellers;
 		
 		public PopularityFilter(Collection<Product> topSellers)

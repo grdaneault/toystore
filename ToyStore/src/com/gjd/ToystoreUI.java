@@ -10,7 +10,6 @@ import com.gjd.UI.Admin.ProductTypeManager;
 import com.gjd.UI.Admin.StoreManager;
 import com.gjd.UI.Admin.VendorAccessManager;
 import com.gjd.UI.Admin.VendorControl;
-import com.gjd.UI.ProductControls.ProductTable;
 import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;

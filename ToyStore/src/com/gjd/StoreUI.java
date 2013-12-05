@@ -260,6 +260,7 @@ public class StoreUI extends UI
 				purchase.setPaymentType((PaymentType) event.getProperty().getValue());
 			}
 		});
+		paymentType.setValue(paymentTypes.get(0));
 		
 		Button completeCheckout = new Button("Complete Checkout");
 		completeCheckout.addClickListener(new ClickListener()

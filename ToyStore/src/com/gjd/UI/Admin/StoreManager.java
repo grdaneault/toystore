@@ -1,6 +1,8 @@
 package com.gjd.UI.Admin;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import com.gjd.UI.ProductControls.ProductTable;
@@ -81,7 +83,10 @@ public class StoreManager extends TabSheet implements Serializable{
 		storeName.setSpacing(true);
 		storeName.setCaption("Store Title");
 		
-		Label totalSales = new Label("$0.00");
+		BigDecimal sales = DatabaseConnection.getInstance().getSalesForStore(store.getId());
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		
+		Label totalSales = new Label(formatter.format(sales.longValue()));
 		totalSales.setCaption("Total Sales");
 
 		FormLayout overview = new FormLayout();

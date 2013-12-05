@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
-import com.gjd.model.DatabaseObjects.Vendor;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;

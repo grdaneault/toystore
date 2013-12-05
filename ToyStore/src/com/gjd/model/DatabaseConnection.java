@@ -141,7 +141,7 @@ public class DatabaseConnection {
 		
 		ResultSet rs = getOneById("Store", "store_id", store_id);
 		if (rs == null) return null;
-		Store s = new Store(store_id, rs.getString("store_name"), getAddressById(rs.getInt("address_id")));
+		Store s = new Store(store_id, rs.getString("store_name"), getAddressById(rs.getInt("address_id")), getCustomerById(rs.getInt("customer_id")));
 
 		rs = getById("DayHours", "store_id", store_id);
 		
@@ -166,7 +166,7 @@ public class DatabaseConnection {
 			
 			while(rs.next())
 			{
-				Store s = new Store(rs.getInt("store_id"), rs.getString("store_name"), getAddressById(rs.getInt("address_id")));
+				Store s = new Store(rs.getInt("store_id"), rs.getString("store_name"), getAddressById(rs.getInt("address_id")), getCustomerById(rs.getInt("customer_id")));
 				stores.add(s);
 			}
 		}
@@ -907,5 +907,24 @@ public class DatabaseConnection {
 			ex.printStackTrace();
 		}
 		return 0;
+	}
+	
+	public BigDecimal getSalesForStore(int storeId)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT SUM(quantity * price) as total_sales FROM PurchaseItems JOIN Purchase ON Purchase.purchase_id = PurchaseItems.purchase_id WHERE store_id = ?");
+			pst.setInt(1, storeId);
+			
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			return rs.getBigDecimal(1);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return BigDecimal.ZERO;
 	}
 }

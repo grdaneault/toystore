@@ -8,9 +8,6 @@ import com.gjd.model.DatabaseConnection;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.data.util.sqlcontainer.query.FreeformQuery;
 import com.vaadin.data.util.sqlcontainer.query.FreeformStatementDelegate;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 
 
 public class ProductPagedFilterTable extends PagedFilterTable<SQLContainer>

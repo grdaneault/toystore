@@ -1,6 +1,5 @@
 package com.gjd.UI.ProductControls;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
 import org.tepi.filtertable.FilterGenerator;
@@ -18,6 +17,7 @@ import com.vaadin.ui.Field;
 public class ProductFilterGenerator implements FilterGenerator
 {
 
+	private static final long serialVersionUID = -4100464257069381327L;
 	private final PagedFilterTable<SQLContainer> table;
 
 	public ProductFilterGenerator(PagedFilterTable<SQLContainer> table)
@@ -60,13 +60,7 @@ public class ProductFilterGenerator implements FilterGenerator
 				String ltValue = interval.getLessThanValue();
 				String gtValue = interval.getGreaterThanValue();
 				String eqValue = interval.getEqualsValue();
-				Class<?> clazz = BigDecimal.class;
 
-				Method valueOf;
-
-				// We use reflection to get the vaueOf method of the
-				// container
-				// datatype
 				if (eqValue != null)
 				{
 					return new Compare.Equal(propertyId, BigDecimal.valueOf(Long.valueOf(eqValue)));

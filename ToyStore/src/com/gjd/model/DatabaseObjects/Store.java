@@ -18,6 +18,14 @@ public class Store implements Serializable{
 	private String name;
 	private Address address;
 	
+	private Customer generic;
+	
+	
+	public Customer getGeneric()
+	{
+		return generic;
+	}
+
 	private HashMap<Character, DayHour> hours;
 	
 	public Store()
@@ -25,11 +33,12 @@ public class Store implements Serializable{
 		this.id = -1;
 	}
 	
-	public Store(int id, String name, Address address)
+	public Store(int id, String name, Address address, Customer generic)
 	{
 		this.id = id;
 		this.name = name;
 		this.address = address;
+		this.generic = generic;
 	}
 
 	public int getId() {

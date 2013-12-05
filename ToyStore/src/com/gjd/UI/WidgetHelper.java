@@ -7,7 +7,9 @@ import com.gjd.widgetset.client.widgethelper.WidgetHelperState;
 
 public class WidgetHelper extends com.vaadin.ui.AbstractComponent {
 
+	private static final long serialVersionUID = -1892771208721419223L;
 	private WidgetHelperServerRpc rpc = new WidgetHelperServerRpc() {
+		private static final long serialVersionUID = -4190187352221469325L;
 		private int clickCount = 0;
 
 		public void clicked(MouseEventDetails mouseDetails) {

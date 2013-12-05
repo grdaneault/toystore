@@ -6,29 +6,23 @@ import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Address;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.PopupView;
-import com.vaadin.ui.PopupView.PopupVisibilityListener;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.PopupView.Content;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
+import com.vaadin.ui.PopupView.PopupVisibilityListener;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
+import com.vaadin.ui.VerticalLayout;
 
 
 public class AddressPopupColumnGenerator implements ColumnGenerator
 {
 	
+	private static final long serialVersionUID = 415599163920920938L;
 	private SQLContainer dataContainer;
 
 	public AddressPopupColumnGenerator(SQLContainer dataContainer)
@@ -52,6 +46,7 @@ public class AddressPopupColumnGenerator implements ColumnGenerator
 			
 			PopupView editor = new PopupView(new Content()
 			{
+				private static final long serialVersionUID = -7260412276123972775L;
 				private AddressManager addressManager = new AddressManager(addr);
 				public Component getPopupComponent()
 				{
@@ -77,6 +72,8 @@ public class AddressPopupColumnGenerator implements ColumnGenerator
 			editor.addPopupVisibilityListener(new PopupVisibilityListener()
 			{
 				
+				private static final long serialVersionUID = -1515559206964402506L;
+
 				@Override
 				public void popupVisibilityChange(PopupVisibilityEvent event)
 				{

@@ -2,8 +2,6 @@ package com.gjd.UI.ProductControls;
 
 import java.text.NumberFormat;
 
-import org.tepi.filtertable.FilterTable;
-
 import com.gjd.model.DatabaseObjects.Product;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.label.ContentMode;
