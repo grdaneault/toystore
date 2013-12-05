@@ -123,4 +123,9 @@ public class Product implements Serializable
 	public Product()
 	{
 	}
+	
+	public String toString()
+	{
+		return name;
+	}
 }

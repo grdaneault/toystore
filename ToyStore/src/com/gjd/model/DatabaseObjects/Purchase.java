@@ -1,5 +1,6 @@
 package com.gjd.model.DatabaseObjects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Purchase {
@@ -9,7 +10,7 @@ public class Purchase {
 	private PaymentType paymentType;
 	private double total;
 	private PurchaseStatus purchaseStatus;
-	private HashMap<Product, Integer> products;
+	private ArrayList<PurchaseItem> items = new ArrayList<PurchaseItem>();
 	
 	
 	public int getId() {
@@ -32,6 +33,46 @@ public class Purchase {
 	}
 	
 	
+	public ArrayList<PurchaseItem> getItems()
+	{
+		return items;
+	}
+	
+	public void setItems(ArrayList<PurchaseItem> items)
+	{
+		this.items = items;
+	}
+	
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+	
+	public void setStore(Store store)
+	{
+		this.store = store;
+	}
+	
+	public void setCustomer(Customer customer)
+	{
+		this.customer = customer;
+	}
+	
+	public void setPaymentType(PaymentType paymentType)
+	{
+		this.paymentType = paymentType;
+	}
+	
+	public void setTotal(double total)
+	{
+		this.total = total;
+	}
+	
+	public void setPurchaseStatus(PurchaseStatus purchaseStatus)
+	{
+		this.purchaseStatus = purchaseStatus;
+	}
+	
 	public Purchase(int id, Store store, Customer customer,
 			PaymentType paymentType, double total, PurchaseStatus purchaseStatus) {
 		this.id = id;
@@ -41,8 +82,10 @@ public class Purchase {
 		this.total = total;
 		this.purchaseStatus = purchaseStatus;
 	}
-
 	
-	
-	
+	public Purchase(Store store)
+	{
+		this.store = store;
+		this.id = -1;
+	}
 }

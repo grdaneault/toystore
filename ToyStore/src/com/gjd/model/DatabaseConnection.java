@@ -153,6 +153,28 @@ public class DatabaseConnection {
 		return s;
 	}
 	
+	public ArrayList<Store> getStoreList()
+	{
+		ArrayList<Store> stores = new ArrayList<Store>();
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT * FROM Store");
+			ResultSet rs = pst.executeQuery();
+			
+			while(rs.next())
+			{
+				Store s = new Store(rs.getInt("store_id"), rs.getString("store_name"), getAddressById(rs.getInt("address_id")));
+				stores.add(s);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return stores;
+	}
+	
 	public Customer getCustomerById(int cust_id) throws SQLException
 	{
 		ResultSet rs = getOneById("Customer", "customer_id", cust_id);
@@ -185,7 +207,7 @@ public class DatabaseConnection {
 	public Product getProductById(int product_id) throws SQLException
 	{
 		//TODO:  actually load brand, vendor, product type
-		ResultSet rs = getOneById("Product", "product_id", product_id);
+		ResultSet rs = getOneById("Product", "SKU", product_id);
 		if (rs == null) return null;
 		return new Product(rs.getInt("SKU"), rs.getString("product_name"), rs.getString("image"), rs.getDouble("weight"), rs.getFloat("MSRP"), rs.getFloat("price"), null, null, null);
 	}
@@ -685,6 +707,49 @@ public class DatabaseConnection {
 		{
 			ex.printStackTrace(System.err);
 			return false;
+		}
+	}
+
+	/**
+	 * Helper method for the physical store UI that gets the price of the product at a given store
+	 * 
+	 * @param SKU
+	 * @param storeId
+	 * @return
+	 */
+	public Product getProductByIdForStore(int SKU, int storeId)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT Product.SKU, image, weight, product_name, MSRP, Inventory.price, Product.type_id, type_name FROM Product JOIN Inventory ON Product.SKU = Inventory.SKU JOIN ProductType ON ProductType.type_id = Product.type_id WHERE Inventory.store_id = ? AND Product.SKU = ? LIMIT 1;");
+			pst.setInt(1, storeId);
+			pst.setInt(2, SKU);
+			
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			return new Product(rs.getInt("SKU"), rs.getString("product_name"), rs.getString("image"), rs.getDouble("weight"), rs.getFloat("MSRP"), rs.getFloat("price"), new ProductType(rs.getInt("type_id"), rs.getString("type_name")), null, null);
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		return null;
+	}
+
+	public int getMaxProductSKU()
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT SKU FROM Product ORDER BY SKU DESC LIMIT 1");
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			
+			return rs.getInt(1);
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace();
+			return 0;
 		}
 	}
 }
