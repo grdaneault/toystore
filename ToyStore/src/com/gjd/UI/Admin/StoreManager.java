@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import com.gjd.UI.ProductControls.ProductTable;
+import com.gjd.UI.ProductControls.ProductControl;
 import com.gjd.model.DatabaseConnection;
+import com.gjd.model.DatabaseObjects.PurchaseItem;
 import com.gjd.model.DatabaseObjects.Store;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.BeanValidator;
@@ -40,15 +41,12 @@ public class StoreManager extends TabSheet implements Serializable{
 
 	private StoreHoursControl storeHoursControl;
 
-	private Tab storeTab;
-
-	private Tab hoursTab;
-
-	private Tab addressTab;
-	
-	private Tab inventoryTab;
-	
-	private void buildMainLayout() {
+	private void buildMainLayout()
+	{
+		
+		FormLayout overview = new FormLayout();
+		overview.setSpacing(true);
+		overview.setMargin(true);
 		
 		BeanItem<Store> item = new BeanItem<Store>(store);
 		
@@ -82,48 +80,52 @@ public class StoreManager extends TabSheet implements Serializable{
 		HorizontalLayout storeName = new HorizontalLayout(storeTitle, save);
 		storeName.setSpacing(true);
 		storeName.setCaption("Store Title");
+		overview.addComponent(storeName);
 		
 		BigDecimal sales = DatabaseConnection.getInstance().getSalesForStore(store.getId());
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
-		
 		Label totalSales = new Label(formatter.format(sales.longValue()));
 		totalSales.setCaption("Total Sales");
-
-		FormLayout overview = new FormLayout();
-		overview.setSpacing(true);
-		overview.setMargin(true);
-		overview.addComponent(storeName);
 		
 		overview.addComponent(totalSales);
+
+		PurchaseItem pi = DatabaseConnection.getInstance().getMostCommonProductForStore(store.getId());
+		
+		if (pi != null)
+		{
+			ProductControl pc = new ProductControl(pi.getProduct());
+			pc.setCaption("Most Popuplar Product");
+	
+			Label sold = new Label("" + pi.getQuantity());
+			sold.setCaption("Quantity Sold");
+
+			overview.addComponent(pc);
+			overview.addComponent(sold);
+		}
+		else
+		{
+			Label pc = new Label("No Data");
+			pc.setCaption("Most Popuplar Product");
+
+			Label sold = new Label("No Data");
+			sold.setCaption("Quantity Sold");
+
+			overview.addComponent(pc);
+			overview.addComponent(sold);
+			
+		}
+		
+		
 		
 		
 		System.out.println(store);
 		
 		storeHoursControl = new StoreHoursControl(store);
 		tabs.add(storeHoursControl);
-		storeTab = addTab(overview, "Overview");
-		hoursTab = addTab(storeHoursControl, "Hours");
-		addressTab = addTab(new AddressManager(store.getAddress()), "Address");
-		
-		ProductTable prodTab = new ProductTable();
-		prodTab.setCaption("Currently only a listing of all products in the database");
-		inventoryTab = addTab(new StoreInventoryManager(store), "Inventory");
-		//addTab(new BrandControl(), "Brands");
-		//addTab(new ProductTypeManager(), "Product Types");
+		addTab(overview, "Overview");
+		addTab(storeHoursControl, "Hours");
+		addTab(new AddressManager(store.getAddress()), "Address");
+		addTab(new StoreInventoryManager(store), "Inventory");
 		
 	}
-	
-	public void changeStore(Store s)
-	{
-		System.out.println("Chainging to store " + s);
-		this.store = s;
-		int tab = getTabPosition(getTab(getSelectedTab()));
-		removeTab(storeTab);
-		removeTab(hoursTab);
-		removeTab(addressTab);
-		setSelectedTab(tab);
-		//storeHoursControl.setStore(s);
-		buildMainLayout();
-	}
-
 }

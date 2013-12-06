@@ -18,6 +18,9 @@ public class ProductControl extends HorizontalLayout
 	
 	public ProductControl(Product p)
 	{
+		setSpacing(true);
+		setMargin(true);
+		
 		Image image = new Image();
 		image.setSource(new ThemeResource("images/products/" + p.getImage()));
 		

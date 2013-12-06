@@ -79,6 +79,12 @@ public class DataGenerationTool
 					pi = PurchaseItem.create(randBetween(MIN_PRODUCT_ID, MAX_PRODUCT_ID), s.getId(), randBetween(1, MAX_QUANTITY_PER_ITEM), p);
 				}
 				
+				int maxQ = conn.getAvailableQuantity(pi.getProduct(), p.getStore());
+				if (pi.getQuantity() > maxQ)
+				{
+					pi.setQuantity(maxQ);
+				}
+				
 				p.addPurchaseItem(pi);
 			}
 			
@@ -118,7 +124,7 @@ public class DataGenerationTool
 			conn.createAllStoreOrders(s.getId());
 			conn.fillAllOrdersForStore(s.getId());
 			
-			System.out.println("Added transaction " + i + " with " + p.getItems().size() + " items totaling " + p.getTotal());
+			System.err.println("Added transaction " + i + " with " + p.getItems().size() + " items totaling " + p.getTotal() + " at store " + p.getStore().getId() + " paid with " + p.getPaymentType().getName() + " by " + c.getFirst());
 		}
 	}
 
@@ -133,7 +139,7 @@ public class DataGenerationTool
 	
 	public static int randBetween(int low, int high)
 	{
-		return rand.nextInt(high - low) + low;
+		return rand.nextInt(high - low + 1) + low;
 	}
 
 }

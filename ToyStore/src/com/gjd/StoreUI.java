@@ -116,7 +116,7 @@ public class StoreUI extends UI
 				return ((BeanItem<PurchaseItem>)source.getItem(itemId)).getBean().getProduct().getPrice();
 			}
 		});
-		
+
 		order.addGeneratedColumn("total price", new ColumnGenerator()
 		{
 			
@@ -127,8 +127,29 @@ public class StoreUI extends UI
 				return ((BeanItem<PurchaseItem>)source.getItem(itemId)).getBean().getProduct().getPrice() * (Integer)source.getItem(itemId).getItemProperty("quantity").getValue();
 			}
 		});
+
+		order.addGeneratedColumn("remove", new ColumnGenerator()
+		{
+			
+			@SuppressWarnings("unchecked")
+			@Override
+			public Object generateCell(final Table source, final Object itemId, Object columnId)
+			{
+				Button remove = new Button("Remove");
+				remove.addClickListener(new ClickListener()
+				{
+					
+					@Override
+					public void buttonClick(ClickEvent event)
+					{
+						source.removeItem(itemId);
+					}
+				});
+				return remove;
+			}
+		});
 		
-		order.setVisibleColumns("product", "price", "quantity", "total price");
+		order.setVisibleColumns("product", "price", "quantity", "total price", "remove");
 		order.setFooterVisible(true);
 		order.setColumnFooter("product", "Total");
 		order.setColumnFooter("quantity", "0");
@@ -201,7 +222,7 @@ public class StoreUI extends UI
 				
 			}
 		});
-		
+
 		Button checkout = new Button("Checkout");
 		checkout.addClickListener(new ClickListener()
 		{
@@ -209,7 +230,30 @@ public class StoreUI extends UI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				createCheckoutWindow();
+				if (order.getContainerDataSource().size() == 0)
+				{
+					Notification.show("No items selected for purchase", "", Type.WARNING_MESSAGE);
+				}
+				else
+				{
+					createCheckoutWindow();
+				}
+			}
+		});
+		
+
+		Button clear = new Button("Clear Cart");
+		clear.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				order.removeAllItems();
+				purchase = new Purchase(store);
+				order.setColumnFooter("quantity", "0");
+				order.setColumnFooter("total price", "0");
+				Notification.show("Cart Cleared", "", Type.HUMANIZED_MESSAGE);
 			}
 		});
 		
@@ -217,11 +261,13 @@ public class StoreUI extends UI
 		addItemContainer.addComponent(itemQuantity);
 		addItemContainer.addComponent(add);
 		addItemContainer.addComponent(checkout);
+		addItemContainer.addComponent(clear);
 		addItemContainer.setSpacing(true);
 		addItemContainer.setComponentAlignment(itemSKU, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(itemQuantity, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(add, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(checkout, Alignment.BOTTOM_LEFT);
+		addItemContainer.setComponentAlignment(clear, Alignment.BOTTOM_LEFT);
 		
 		item = new Label("");
 		

@@ -3,14 +3,12 @@ package com.gjd;
 import javax.servlet.annotation.WebServlet;
 
 import com.gjd.UI.ProductControls.ProductPagedFilterTable;
-import com.gjd.UI.ProductControls.ProductTable;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -39,8 +37,6 @@ public class WebStoreUI extends UI implements Command
 		final VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(false);
 		setContent(layout);
-		
-		HorizontalLayout header = new HorizontalLayout();
 		
 		Label headerLbl = new Label("<h1>Online Toy Store!</h1>" + request.getPathInfo());
 		headerLbl.setContentMode(ContentMode.HTML);
@@ -74,13 +70,6 @@ public class WebStoreUI extends UI implements Command
 		
 		mainContent = new VerticalLayout();
 		layout.addComponent(mainContent);
-	}
-	
-	private Component loadHomePage()
-	{
-		ProductTable products = new ProductTable();
-		products.sortByPopularity(5);
-		return products;
 	}
 	
 	private Component loadBrowseByBrand()

@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Address;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.sqlcontainer.SQLContainer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -23,12 +22,6 @@ public class AddressPopupColumnGenerator implements ColumnGenerator
 {
 	
 	private static final long serialVersionUID = 415599163920920938L;
-	private SQLContainer dataContainer;
-
-	public AddressPopupColumnGenerator(SQLContainer dataContainer)
-	{
-		this.dataContainer = dataContainer;
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -64,7 +57,6 @@ public class AddressPopupColumnGenerator implements ColumnGenerator
 				@Override
 				public String getMinimizedValueAsHTML()
 				{
-					// TODO Auto-generated method stub
 					return addressManager.getAddress().toHtmlString();
 				}
 			});

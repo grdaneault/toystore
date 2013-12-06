@@ -101,6 +101,53 @@ public class DatabaseConnection {
         }
 	}
 	
+	public boolean beginTransaction()
+	{
+		try
+		{
+			conn.setAutoCommit(false);
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean endTransaction()
+	{
+		try
+		{
+			conn.commit();
+			conn.setAutoCommit(true);
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean rollback()
+	{
+		try
+		{
+			conn.rollback();
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public JDBCConnectionPool getPool() {
+		return connPool;
+	}
+
 	public void loadStates() throws SQLException
 	{
 		PreparedStatement pst = conn.prepareStatement("SELECT * FROM State");
@@ -494,10 +541,6 @@ public class DatabaseConnection {
 		return top;
 	}
 
-	public JDBCConnectionPool getPool() {
-		return connPool;
-	}
-
 	public boolean saveProductWeight(int sku, double weight)
 	{
 		return saveProductField(sku, "Weight", weight);
@@ -718,6 +761,48 @@ public class DatabaseConnection {
 		}
 	}
 
+	public void fillAllOrdersForStore(int storeId)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ?");
+			pst.setInt(1, storeId);
+			
+			int n = pst.executeUpdate();
+			System.out.println(n + " rows updated in order fill.");
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		
+	}
+
+	public boolean createOrder(Purchase purchase)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO `Purchase` (store_id, customer_id, payment_type_id, total, date) VALUES (?, ?, ?, ?, NOW() )", Statement.RETURN_GENERATED_KEYS);
+			
+			pst.setInt(1, purchase.getStore().getId());
+			pst.setInt(2, purchase.getCustomer().getId());
+			pst.setInt(3,  purchase.getPaymentType().getId());
+			pst.setObject(4, purchase.getTotal());
+			
+			pst.executeUpdate();
+			ResultSet rs = pst.getGeneratedKeys(); 
+			rs.next();
+			purchase.setId(rs.getInt(1));
+			return true;
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+
 	/**
 	 * Helper method for the physical store UI that gets the price of the product at a given store
 	 * 
@@ -787,74 +872,6 @@ public class DatabaseConnection {
 		}
 		
 		return types;
-	}
-
-	public boolean beginTransaction()
-	{
-		try
-		{
-			conn.setAutoCommit(false);
-			return true;
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public boolean endTransaction()
-	{
-		try
-		{
-			conn.commit();
-			conn.setAutoCommit(true);
-			return true;
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public boolean rollback()
-	{
-		try
-		{
-			conn.rollback();
-			return true;
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public boolean createOrder(Purchase purchase)
-	{
-		try
-		{
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO `Purchase` (store_id, customer_id, payment_type_id, total, date) VALUES (?, ?, ?, ?, NOW() )", Statement.RETURN_GENERATED_KEYS);
-			
-			pst.setInt(1, purchase.getStore().getId());
-			pst.setInt(2, purchase.getCustomer().getId());
-			pst.setInt(3,  purchase.getPaymentType().getId());
-			pst.setObject(4, purchase.getTotal());
-			
-			pst.executeUpdate();
-			ResultSet rs = pst.getGeneratedKeys(); 
-			rs.next();
-			purchase.setId(rs.getInt(1));
-			return true;
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return false;
 	}
 
 	public boolean savePurchaseItem(PurchaseItem pi)
@@ -955,21 +972,27 @@ public class DatabaseConnection {
 		
 		return BigDecimal.ZERO;
 	}
-
-	public void fillAllOrdersForStore(int storeId)
+	
+	public PurchaseItem getMostCommonProductForStore(int storeId)
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ?");
+			PreparedStatement pst = conn.prepareStatement("SELECT SUM(quantity) as `count`, SKU FROM `PurchaseItems` JOIN Purchase ON Purchase.purchase_id = PurchaseItems.purchase_id WHERE store_id = ? GROUP BY SKU ORDER BY `count` DESC LIMIT 1");
 			pst.setInt(1, storeId);
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+			int SKU = rs.getInt("SKU");
+			int quantity = rs.getInt("count");
 			
-			int n = pst.executeUpdate();
-			System.out.println(n + " rows updated in order fill.");
+			Product p = getProductByIdForStore(SKU, storeId);
+			PurchaseItem pi = new PurchaseItem(p, quantity, null);
+			return pi;
 		}
-		catch (SQLException ex)
+		catch (SQLException e)
 		{
-			ex.printStackTrace(System.err);
+			e.printStackTrace();
 		}
 		
+		return null;
 	}
 }
