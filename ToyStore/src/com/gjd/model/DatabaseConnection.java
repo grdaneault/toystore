@@ -542,7 +542,6 @@ public class DatabaseConnection {
 			pst.setInt(3, store);
 			
 			int rows = pst.executeUpdate();
-			System.out.println(rows);
 			return rows == 1;
 		}
 		catch (SQLException ex)
@@ -596,6 +595,7 @@ public class DatabaseConnection {
 		try
 		{
 			StringBuilder query = new StringBuilder("INSERT INTO `Order` (date, filled, quantity, SKU, store_id, vendor_id) ");
+			query.append("SELECT * FROM (");
 			query.append("SELECT NOW( ) AS date, 0 AS filled, (desired_quantity - quantity - IFNULL( ");
 			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
 			query.append(" , 0)) AS quantity, Inventory.SKU, store_id, vendor_id ");
@@ -605,6 +605,7 @@ public class DatabaseConnection {
 			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 AND store_id = ?) ");
 			query.append(", 0)) > 0 ");
 			query.append("AND Inventory.SKU = ? ");
+			query.append(") as temp WHERE quantity > 0");
 			System.out.println(query);
 			PreparedStatement pst = conn.prepareStatement(query.toString());
 			
@@ -627,6 +628,7 @@ public class DatabaseConnection {
 		try
 		{
 			StringBuilder query = new StringBuilder("INSERT INTO `Order` (date, filled, quantity, SKU, store_id, vendor_id) ");
+			query.append("SELECT * FROM (");
 			query.append("SELECT NOW( ) AS date, 0 AS filled, (desired_quantity - quantity - IFNULL( ");
 			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 ) ");
 			query.append(" , 0)) AS quantity, Inventory.SKU, store_id, vendor_id ");
@@ -635,6 +637,7 @@ public class DatabaseConnection {
 			query.append("AND (desired_quantity - quantity - IFNULL( ");
 			query.append("(SELECT SUM( quantity ) FROM  `Order` WHERE SKU = Inventory.SKU AND filled = 0 AND store_id = ?) ");
 			query.append(", 0)) > 0 ");
+			query.append(") as temp WHERE quantity > 0");
 			System.out.println(query);
 			PreparedStatement pst = conn.prepareStatement(query.toString());
 			
@@ -726,13 +729,19 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("SELECT Product.SKU, image, weight, product_name, MSRP, Inventory.price, Product.type_id, type_name FROM Product JOIN Inventory ON Product.SKU = Inventory.SKU JOIN ProductType ON ProductType.type_id = Product.type_id WHERE Inventory.store_id = ? AND Product.SKU = ? LIMIT 1;");
+			PreparedStatement pst = conn.prepareStatement("SELECT Product.SKU, image, weight, product_name, MSRP, Inventory.price, Product.type_id, type_name FROM Product JOIN Inventory ON Product.SKU = Inventory.SKU JOIN ProductType ON ProductType.type_id = Product.type_id WHERE Inventory.store_id = ? AND Product.SKU = ? AND Inventory.desired_quantity != 0 LIMIT 1;");
 			pst.setInt(1, storeId);
 			pst.setInt(2, SKU);
 			
 			ResultSet rs = pst.executeQuery();
-			rs.next();
-			return new Product(rs.getInt("SKU"), rs.getString("product_name"), rs.getString("image"), rs.getDouble("weight"), rs.getFloat("MSRP"), rs.getFloat("price"), new ProductType(rs.getInt("type_id"), rs.getString("type_name")), null, null);
+			if (rs.next())
+			{
+				return new Product(rs.getInt("SKU"), rs.getString("product_name"), rs.getString("image"), rs.getDouble("weight"), rs.getFloat("MSRP"), rs.getFloat("price"), new ProductType(rs.getInt("type_id"), rs.getString("type_name")), null, null);
+			}
+			
+			System.out.println("No matching item found, not stocked? (" + SKU + " @ " + storeId + ")");
+			return null;
+			
 		}
 		catch (SQLException ex)
 		{
@@ -852,7 +861,7 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO PurchaseItems (purchase_id, SKU, quantity, price) VALUES (?, ?, ?, ?);");
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO PurchaseItems (purchase_id, SKU, quantity, price) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)");
 			pst.setInt(1, pi.getPurchase().getId());
 			pst.setInt(2, pi.getProduct().getSKU());
 			pst.setInt(3, pi.getQuantity());
@@ -862,6 +871,25 @@ public class DatabaseConnection {
 			{
 				return  decrementQuantity(pi);
 			}
+			
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean updatePurchaseTotal(Purchase p)
+	{
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE `Purchase` SET total = (SELECT SUM(price * quantity) FROM `PurchaseItems` WHERE purchase_id = ?) WHERE purchase_id = ?");
+			pst.setInt(1, p.getId());
+			pst.setInt(2, p.getId());
+			
+			return (1 == pst.executeUpdate());
 			
 		}
 		catch (SQLException e)
@@ -915,10 +943,10 @@ public class DatabaseConnection {
 		{
 			PreparedStatement pst = conn.prepareStatement("SELECT SUM(quantity * price) as total_sales FROM PurchaseItems JOIN Purchase ON Purchase.purchase_id = PurchaseItems.purchase_id WHERE store_id = ?");
 			pst.setInt(1, storeId);
-			
 			ResultSet rs = pst.executeQuery();
 			rs.next();
-			return rs.getBigDecimal(1);
+			BigDecimal sales = rs.getBigDecimal(1);
+			return sales == null ? BigDecimal.ZERO : sales;
 		}
 		catch (SQLException e)
 		{
@@ -926,5 +954,22 @@ public class DatabaseConnection {
 		}
 		
 		return BigDecimal.ZERO;
+	}
+
+	public void fillAllOrdersForStore(int storeId)
+	{
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ?");
+			pst.setInt(1, storeId);
+			
+			int n = pst.executeUpdate();
+			System.out.println(n + " rows updated in order fill.");
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		
 	}
 }

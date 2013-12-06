@@ -271,18 +271,27 @@ public class StoreUI extends UI
 				DatabaseConnection.getInstance().beginTransaction();
 				
 				Customer c;
-				try
+				if (customerId.getValue().equals(""))
 				{
-					c = DatabaseConnection.getInstance().getCustomerById(Integer.valueOf(customerId.getValue()));
-					purchase.setCustomer(c);
+					c = store.getGeneric();
 				}
-				catch (SQLException ex)
+				else
 				{
-					ex.printStackTrace();
-					Notification.show("Unknown Customer", "Unable to find customer with ID " + customerId.getValue(), Type.ERROR_MESSAGE);
-					DatabaseConnection.getInstance().endTransaction();
-					return;
+					try
+					{
+						c = DatabaseConnection.getInstance().getCustomerById(Integer.valueOf(customerId.getValue()));
+					}
+					catch (SQLException ex)
+					{
+						ex.printStackTrace();
+						Notification.show("Unknown Customer", "Unable to find customer with ID " + customerId.getValue(), Type.ERROR_MESSAGE);
+						DatabaseConnection.getInstance().endTransaction();
+						return;
+					}
 				}
+				
+				
+				purchase.setCustomer(c);
 				
 				boolean good = true;
 				purchase.calculateTotal();
@@ -308,7 +317,9 @@ public class StoreUI extends UI
 					}
 				}
 				
-				if (good)
+				boolean updateTotal = DatabaseConnection.getInstance().updatePurchaseTotal(purchase);
+				
+				if (good && updateTotal)
 				{
 					Notification.show("Thank You, " + c.getFirst(), "Have a nice day", Type.HUMANIZED_MESSAGE);
 					checkoutOptions.close();
@@ -319,6 +330,15 @@ public class StoreUI extends UI
 				}
 				else
 				{
+					if (!good)
+					{
+						Notification.show("Error", "Could not add all items", Type.ERROR_MESSAGE);
+					}
+					
+					else if (!updateTotal)
+					{
+						Notification.show("Error", "Could not update order total", Type.ERROR_MESSAGE);					
+					}
 					DatabaseConnection.getInstance().rollback();
 				}
 				

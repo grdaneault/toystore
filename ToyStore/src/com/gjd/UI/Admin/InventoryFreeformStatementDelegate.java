@@ -128,7 +128,15 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 			OrderBy lastOrderBy = orderBys.get(orderBys.size() - 1);
 			for (OrderBy orderBy : orderBys)
 			{
-				orderBuffer.append(SQLUtil.escapeSQL(orderBy.getColumn()));
+				if (orderBy.getColumn().equals("SKU"))
+				{
+					orderBuffer.append(SQLUtil.escapeSQL("Product." + orderBy.getColumn()));
+				}
+				else
+				{
+					orderBuffer.append(SQLUtil.escapeSQL(orderBy.getColumn()));
+				}
+				
 				if (orderBy.isAscending())
 				{
 					orderBuffer.append(" ASC");

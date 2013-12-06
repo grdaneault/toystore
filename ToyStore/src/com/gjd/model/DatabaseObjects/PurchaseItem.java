@@ -54,5 +54,25 @@ public class PurchaseItem
 		product = DatabaseConnection.getInstance().getProductByIdForStore(SKU, storeId);
 	}
 	
+	/**
+	 * Helper method as a wrapper of the constructor that returns null if there is no product found
+	 * 
+	 * @param SKU
+	 * @param storeId
+	 * @param quantity
+	 * @param purchase
+	 * @return
+	 */
+	public static PurchaseItem create(int SKU, int storeId, int quantity, Purchase purchase)
+	{
+		PurchaseItem pi = new PurchaseItem(SKU, storeId, quantity, purchase);
+		if (pi.getProduct() != null)
+		{
+			return pi;
+		}
+		
+		return null;
+	}
+	
 	
 }	

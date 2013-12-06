@@ -42,6 +42,7 @@ public class StoreInventoryManager extends VerticalLayout
 		products.addPopupColumn(new PopupEditorColumnGenerator.InventorySaveHandler(), "price", "quantity", "desired_quantity", "reorder_threshold");
 		products.setSelectable(true);
 		products.setMultiSelect(true);
+		products.setSortContainerPropertyId("SKU");
 		final Button updateSelected = new Button("With Selected...");
 		final Window w = new Window("With Selected...");
 		//w.setModal(true);
