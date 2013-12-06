@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 
 import com.gjd.UI.Admin.AddressControl;
+import com.gjd.UI.User.RegisterWindow;
 import com.gjd.UI.User.UserInfoControl;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Customer;
@@ -251,7 +252,7 @@ public class StoreUI extends UI
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				createLoginWindow();
+				createRegisterWindow();
 			}
 		});
 		
@@ -421,65 +422,9 @@ public class StoreUI extends UI
 		getUI().addWindow(checkoutOptions);
 	}
 
-	private void createLoginWindow()
+	private void createRegisterWindow()
 	{
-		final Window registerWindow = new Window("Register New Customer");
-		
-		VerticalLayout layout = new VerticalLayout();
-		layout.setSpacing(true);
-		layout.setMargin(true);
-
-		Label header = new Label("<h2>Enter User Information</h2>");
-		header.setContentMode(ContentMode.HTML);
-		layout.addComponent(header);
-
-		Label basicHeader = new Label("<h3>Basic Info</h3>");
-		basicHeader.setContentMode(ContentMode.HTML);
-		layout.addComponent(basicHeader);
-		
-		final Customer c = new Customer();
-		UserInfoControl uic = new UserInfoControl(c);
-		layout.addComponent(uic);
-		
-		Label addressHeader = new Label("<h3>Address</h3>");
-		addressHeader.setContentMode(ContentMode.HTML);
-		layout.addComponent(addressHeader);
-		
-		AddressControl ac = new AddressControl(c.getAddress());
-		layout.addComponent(ac);
-		
-		Button saveCustomer = new Button("Save Customer");
-		saveCustomer.addClickListener(new ClickListener()
-		{
-			
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				System.out.println(c);
-				try
-				{
-					if (DatabaseConnection.getInstance().saveCustomer(c))
-					{
-						Notification.show("Welcome " + c.getFirst(), "Customer #" + c.getId() + " Added Successfully", Type.HUMANIZED_MESSAGE);
-						registerWindow.close();
-					}
-					else
-					{
-						Notification.show("Unable to register customer", "", Type.ERROR_MESSAGE);
-					}
-				}
-				catch (RuntimeException re)
-				{
-					Notification.show("Unable to register customer", re.getMessage(), Type.ERROR_MESSAGE);
-				}
-			}
-		});
-		
-		layout.addComponent(saveCustomer);
-
-		registerWindow.setModal(true);
-		registerWindow.center();
-		registerWindow.setContent(layout);
-		getUI().addWindow(registerWindow);
+		RegisterWindow rw = new RegisterWindow();
+		getUI().addWindow(rw);
 	}
 }

@@ -593,7 +593,7 @@ public class DatabaseConnection {
 		
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("SELECT SKU, COUNT(*) as Popularity FROM PurchaseItems GROUP BY SKU ORDER BY Popularity DESC LIMIT ?");
+			PreparedStatement pst = conn.prepareStatement("SELECT SKU, SUM(quantity) as Popularity FROM PurchaseItems GROUP BY SKU ORDER BY Popularity DESC LIMIT ?");
 			pst.setInt(1, limit);
 			
 			ResultSet rs = pst.executeQuery();

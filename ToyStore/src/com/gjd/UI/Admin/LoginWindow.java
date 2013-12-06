@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -80,6 +81,7 @@ public class LoginWindow extends Window implements ClickListener
 		
 		login = new Button("Login");
 		login.addClickListener(this);
+		login.setClickShortcut(KeyCode.ENTER);
 		layout.addComponent(login);
 		
 		setContent(layout);

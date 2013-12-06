@@ -75,8 +75,13 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 
 		if (filters != null)
 		{
-			query.append(QueryBuilder.getWhereStringForFilters(filters, sh));
+			String where = QueryBuilder.getWhereStringForFilters(filters, sh);
+			where = where.replace("\"brand_id\"", "`Product`.brand_id");
+			where = where.replace("\"type_id\"", "`Product`.type_id");
+			System.out.println(where);
+			query.append(where);
 		}
+		
 
 		query.append(getOrderByString());
 		if (offset != 0 || limit != 0)
@@ -124,7 +129,11 @@ public class ProductFreeformStatementDelegate implements FreeformStatementDelega
 		StringBuffer query = new StringBuffer("SELECT COUNT(*) FROM Product JOIN  `Vendor` ON  `Product`.vendor_id =  `Vendor`.vendor_id JOIN  `Brand` ON  `Product`.brand_id =  `Brand`.brand_id JOIN  `ProductType` ON  `Product`.type_id =  `ProductType`.type_id ");
 		if (filters != null)
 		{
-			query.append(QueryBuilder.getWhereStringForFilters(filters, sh));
+			String where = QueryBuilder.getWhereStringForFilters(filters, sh);
+			where = where.replace("\"brand_id\"", "`Product`.brand_id");
+			where = where.replace("\"type_id\"", "`Product`.type_id");
+			System.out.println(where);
+			query.append(where);
 		}
 		sh.setQueryString(query.toString());
 		return sh;
