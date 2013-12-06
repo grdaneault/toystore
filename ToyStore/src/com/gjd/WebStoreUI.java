@@ -9,6 +9,10 @@ import com.gjd.UI.Admin.LoginWindow;
 import com.gjd.UI.ProductControls.ProductControl;
 import com.gjd.UI.ProductControls.ProductFreeformStatementDelegate;
 import com.gjd.UI.ProductControls.ProductPagedFilterTable;
+import com.gjd.UI.User.CheckoutListener;
+import com.gjd.UI.User.CheckoutWindow;
+import com.gjd.UI.User.PurchaseTable;
+import com.gjd.UI.User.RegisterWindow;
 import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Brand;
@@ -28,10 +32,13 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomTable;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Notification;
@@ -40,7 +47,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")
 @Theme("toystore")
@@ -163,13 +169,14 @@ public class WebStoreUI extends UI implements Command
 			}
 		});
 		
-		menu.addItem("Create Accont", new Command()
+		menu.addItem("Create Account", new Command()
 		{
 			
 			@Override
 			public void menuSelected(MenuItem selectedItem)
 			{
-				Window registerWindow = new Window();
+				RegisterWindow rw = new RegisterWindow();
+				getUI().addWindow(rw);
 			}
 		});
 		
@@ -187,8 +194,65 @@ public class WebStoreUI extends UI implements Command
 	
 	protected void showCart()
 	{
-		// TODO Auto-generated method stub
+		mainContent.removeAllComponents();
+		final PurchaseTable purchaseTable = new PurchaseTable(purchase);
+		purchaseTable.setVisibleColumns("product", "price", "quantity", "update quantity", "total price", "remove");
 		
+		Button clear = new Button("Clear Cart");
+		clear.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				purchaseTable.removeAllItems();
+				purchase = new Purchase(store);
+				purchaseTable.setColumnFooter("quantity", "0");
+				purchaseTable.setColumnFooter("total price", "0");
+				Notification.show("Cart Cleared", "", Type.HUMANIZED_MESSAGE);
+			}
+		});
+		
+		Button checkout = new Button("Checkout");
+		checkout.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				if (purchaseTable.getContainerDataSource().size() == 0)
+				{
+					Notification.show("No items selected for purchase", "", Type.WARNING_MESSAGE);
+				}
+				else
+				{
+					createCheckoutWindow();
+				}
+			}
+		});
+		
+		HorizontalLayout cartOptions = new HorizontalLayout(clear, checkout);
+		cartOptions.setMargin(true);
+		cartOptions.setSpacing(true);
+		
+		mainContent.addComponent(purchaseTable);
+		mainContent.addComponent(cartOptions);
+	}
+
+	protected void createCheckoutWindow()
+	{
+		CheckoutWindow cw = new CheckoutWindow(purchase, customer);
+		cw.setCheckoutListener(new CheckoutListener()
+		{
+			
+			@Override
+			public void successfulCheckout(CheckoutWindow window)
+			{
+				purchase = new Purchase(store);
+				home();
+			}
+		});
+		getUI().addWindow(cw);		
 	}
 
 	protected void browseByProductType()

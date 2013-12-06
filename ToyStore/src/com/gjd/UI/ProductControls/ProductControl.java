@@ -12,8 +12,10 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Notification.Type;
 
 
 public class ProductControl extends HorizontalLayout
@@ -57,6 +59,7 @@ public class ProductControl extends HorizontalLayout
 				public void buttonClick(ClickEvent event)
 				{
 					purchase.addPurchaseItem(new PurchaseItem(p, 1, purchase));
+					Notification.show(p.getName() + " added to cart", "", Type.HUMANIZED_MESSAGE);
 				}
 			});
 			productInfo.addComponent(add);

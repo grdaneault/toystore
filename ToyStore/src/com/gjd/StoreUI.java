@@ -5,9 +5,10 @@ import java.util.ArrayList;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.gjd.UI.Admin.AddressControl;
+import com.gjd.UI.User.CheckoutListener;
+import com.gjd.UI.User.CheckoutWindow;
+import com.gjd.UI.User.PurchaseTable;
 import com.gjd.UI.User.RegisterWindow;
-import com.gjd.UI.User.UserInfoControl;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.PaymentType;
@@ -20,7 +21,6 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;
@@ -31,13 +31,11 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -107,58 +105,8 @@ public class StoreUI extends UI
 		headerLbl.addStyleName("store_header");
 		layout.addComponent(headerLbl);
 		content.addComponent(storeSelect);
-		order = new Table();
-		final BeanItemContainer<PurchaseItem> purchaseItemContainer = new BeanItemContainer<PurchaseItem>(PurchaseItem.class);
-		order.setContainerDataSource(purchaseItemContainer);
-		order.addGeneratedColumn("price", new ColumnGenerator()
-		{
-			
-			@SuppressWarnings("unchecked")
-			@Override
-			public Object generateCell(Table source, Object itemId, Object columnId)
-			{
-				return ((BeanItem<PurchaseItem>)source.getItem(itemId)).getBean().getProduct().getPrice();
-			}
-		});
-
-		order.addGeneratedColumn("total price", new ColumnGenerator()
-		{
-			
-			@SuppressWarnings("unchecked")
-			@Override
-			public Object generateCell(Table source, Object itemId, Object columnId)
-			{
-				return ((BeanItem<PurchaseItem>)source.getItem(itemId)).getBean().getProduct().getPrice() * (Integer)source.getItem(itemId).getItemProperty("quantity").getValue();
-			}
-		});
-
-		order.addGeneratedColumn("remove", new ColumnGenerator()
-		{
-			
-			@SuppressWarnings("unchecked")
-			@Override
-			public Object generateCell(final Table source, final Object itemId, Object columnId)
-			{
-				Button remove = new Button("Remove");
-				remove.addClickListener(new ClickListener()
-				{
-					
-					@Override
-					public void buttonClick(ClickEvent event)
-					{
-						source.removeItem(itemId);
-					}
-				});
-				return remove;
-			}
-		});
 		
-		order.setVisibleColumns("product", "price", "quantity", "total price", "remove");
-		order.setFooterVisible(true);
-		order.setColumnFooter("product", "Total");
-		order.setColumnFooter("quantity", "0");
-		order.setColumnFooter("total price", "0");
-		
+		order = new PurchaseTable();
 
 		HorizontalLayout addItemContainer = new HorizontalLayout();
 		final TextField itemSKU = new TextField("SKU");
@@ -207,6 +155,7 @@ public class StoreUI extends UI
 		add.setClickShortcut(KeyCode.ENTER);
 		add.addClickListener(new ClickListener()
 		{
+			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
@@ -215,7 +164,7 @@ public class StoreUI extends UI
 				int quantity = Integer.valueOf(itemQuantity.getValue());
 				PurchaseItem pi = new PurchaseItem(product, quantity, purchase);
 				purchase.addPurchaseItem(pi);
-				purchaseItemContainer.addBean(pi);
+				((BeanItemContainer<PurchaseItem>)order.getContainerDataSource()).addBean(pi);
 				itemSKU.setValue("");
 				itemSKU.focus();
 				itemQuantity.setValue("1");
@@ -299,127 +248,22 @@ public class StoreUI extends UI
 
 	private void createCheckoutWindow()
 	{
-		final Window checkoutOptions = new Window("Checkout");
-		VerticalLayout checkoutLayout = new VerticalLayout();
 		
-		final TextField customerId = new TextField("Enter your Customer ID");
 		
-		ComboBox paymentType = new ComboBox("Enter payment method");
-		ArrayList<PaymentType> paymentTypes = DatabaseConnection.getInstance().getPaymentTypes();
-		for (PaymentType t : paymentTypes)
-		{
-			paymentType.addItem(t);
-		}
-		
-		paymentType.setNullSelectionAllowed(false);
-		paymentType.setNewItemsAllowed(false);
-		
-		paymentType.addValueChangeListener(new ValueChangeListener()
+		CheckoutWindow cw = new CheckoutWindow(purchase);
+		cw.setCheckoutListener(new CheckoutListener()
 		{
 			
 			@Override
-			public void valueChange(ValueChangeEvent event)
+			public void successfulCheckout(CheckoutWindow window)
 			{
-				purchase.setPaymentType((PaymentType) event.getProperty().getValue());
+				order.removeAllItems();
+				purchase = new Purchase(store);
+				order.setColumnFooter("quantity", "0");
+				order.setColumnFooter("total price", "0");
 			}
 		});
-		paymentType.setValue(paymentTypes.get(0));
-		
-		Button completeCheckout = new Button("Complete Checkout");
-		completeCheckout.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				DatabaseConnection.getInstance().beginTransaction();
-				
-				Customer c;
-				if (customerId.getValue().equals(""))
-				{
-					c = store.getGeneric();
-				}
-				else
-				{
-					try
-					{
-						c = DatabaseConnection.getInstance().getCustomerById(Integer.valueOf(customerId.getValue()));
-					}
-					catch (SQLException ex)
-					{
-						ex.printStackTrace();
-						Notification.show("Unknown Customer", "Unable to find customer with ID " + customerId.getValue(), Type.ERROR_MESSAGE);
-						DatabaseConnection.getInstance().endTransaction();
-						return;
-					}
-				}
-				
-				
-				purchase.setCustomer(c);
-				
-				boolean good = true;
-				purchase.calculateTotal();
-				good = good && DatabaseConnection.getInstance().createOrder(purchase);
-				
-				for (PurchaseItem pi : purchase.getItems())
-				{
-					int remainingQuantity = DatabaseConnection.getInstance().getAvailableQuantity(pi.getProduct(), pi.getPurchase().getStore());
-					if (remainingQuantity >= pi.getQuantity())
-					{
-						good = good && DatabaseConnection.getInstance().savePurchaseItem(pi);
-						if (!good)
-						{
-							Notification.show("Unable to complete the purchase", "Error adding item " + pi.getProduct(), Type.ERROR_MESSAGE);
-							break;
-						}
-					}
-					else
-					{
-						good = false;
-						Notification.show("Unable to complete the purchase", "Insufficient quantity of " + pi.getProduct(), Type.ERROR_MESSAGE);
-						break;
-					}
-				}
-				
-				boolean updateTotal = DatabaseConnection.getInstance().updatePurchaseTotal(purchase);
-				
-				if (good && updateTotal)
-				{
-					Notification.show("Thank You, " + c.getFirst(), "Have a nice day", Type.HUMANIZED_MESSAGE);
-					checkoutOptions.close();
-					order.removeAllItems();
-					purchase = new Purchase(store);
-					order.setColumnFooter("quantity", "0");
-					order.setColumnFooter("total price", "0");
-				}
-				else
-				{
-					if (!good)
-					{
-						Notification.show("Error", "Could not add all items", Type.ERROR_MESSAGE);
-					}
-					
-					else if (!updateTotal)
-					{
-						Notification.show("Error", "Could not update order total", Type.ERROR_MESSAGE);					
-					}
-					DatabaseConnection.getInstance().rollback();
-				}
-				
-				DatabaseConnection.getInstance().endTransaction();
-			}
-		});
-		
-		checkoutLayout.addComponent(customerId);
-		checkoutLayout.addComponent(paymentType);
-		checkoutLayout.addComponent(completeCheckout);
-		checkoutLayout.setSpacing(true);
-		checkoutLayout.setMargin(true);
-		
-		checkoutOptions.setContent(checkoutLayout);
-		checkoutOptions.setWidth(300, Unit.PIXELS);
-		checkoutOptions.center();
-		
-		getUI().addWindow(checkoutOptions);
+		getUI().addWindow(cw);
 	}
 
 	private void createRegisterWindow()
