@@ -27,26 +27,40 @@ public class UserInfoControl extends FormLayout
 		first.setRequired(true);
 		first.setPropertyDataSource(item.getItemProperty("first"));
 		first.addValidator(new BeanValidator(Customer.class, "first"));
+		first.setNullRepresentation("");
+		first.setWidth(250, Unit.PIXELS);
+		first.setImmediate(true);
+		first.setBuffered(false);
 
 		TextField mi = new TextField("Middle Initial");
-		first.setRequired(true);
-		first.setPropertyDataSource(item.getItemProperty("mi"));
-		first.addValidator(new BeanValidator(Customer.class, "mi"));
-
+		mi.setRequired(false);
+		mi.setPropertyDataSource(item.getItemProperty("mi"));
+		mi.addValidator(new BeanValidator(Customer.class, "mi"));
+		mi.setNullRepresentation("");
+		mi.setWidth(40, Unit.PIXELS);
+		mi.setImmediate(true);
+		mi.setBuffered(false);
+		
 		TextField last = new TextField("Last Name");
-		first.setRequired(true);
-		first.setPropertyDataSource(item.getItemProperty("last"));
-		first.addValidator(new BeanValidator(Customer.class, "last"));
-
+		last.setRequired(true);
+		last.setPropertyDataSource(item.getItemProperty("last"));
+		last.addValidator(new BeanValidator(Customer.class, "last"));
+		last.setNullRepresentation("");
+		last.setWidth(250, Unit.PIXELS);
+		
 		TextField phone = new TextField("Phone Number");
-		first.setRequired(true);
-		first.setPropertyDataSource(item.getItemProperty("phone"));
-		first.addValidator(new BeanValidator(Customer.class, "phone"));
-
+		phone.setRequired(true);
+		phone.setPropertyDataSource(item.getItemProperty("phone"));
+		phone.addValidator(new BeanValidator(Customer.class, "phone"));
+		phone.setNullRepresentation("");
+		phone.setWidth(100, Unit.PIXELS);
+		
 		TextField email = new TextField("Email Address");
-		first.setRequired(true);
-		first.setPropertyDataSource(item.getItemProperty("email"));
-		first.addValidator(new BeanValidator(Customer.class, "email"));
+		email.setRequired(true);
+		email.setPropertyDataSource(item.getItemProperty("email"));
+		email.addValidator(new BeanValidator(Customer.class, "email"));
+		email.setNullRepresentation("");
+		email.setWidth(250, Unit.PIXELS);
 		
 		addComponent(first);
 		addComponent(mi);

@@ -311,6 +311,10 @@ public class DatabaseConnection {
 			ex.printStackTrace(System.err);
 			return false;
 		}
+		catch (NullPointerException ex)
+		{
+			throw new RuntimeException("Invalid State Specified", ex);
+		}
 	}
 	
 	/**
@@ -456,6 +460,74 @@ public class DatabaseConnection {
 		}
 	}
 	
+	public boolean saveCustomer(Customer c)
+	{
+		try
+		{
+			if (c.isNew())
+			{
+				if (c.getPhone() == null)
+				{
+					throw new RuntimeException("Must specify phone number");
+				}
+				
+				if (c.getEmail() == null)
+				{
+					throw new RuntimeException("Must specify email address");
+				}
+				
+				if (c.getMi() == null)
+				{
+					c.setMi("");
+				}
+				
+				if (!c.getAddress().isNew() || (c.getAddress().isNew() && saveAddress(c.getAddress())))
+				{
+					PreparedStatement pst = conn.prepareStatement("INSERT INTO Customer (cname_first, cname_mi, cname_last, address_id, phone, email) VALUES (?, ?, ?, ?, ?, ?); ", Statement.RETURN_GENERATED_KEYS);
+					pst.setString(1, c.getFirst());
+					pst.setString(2, c.getMi());
+					pst.setString(3, c.getLast());
+					pst.setInt(4, c.getAddress().getId());
+					pst.setString(5, c.getPhone());
+					pst.setString(6, c.getEmail());
+					
+					pst.executeUpdate();
+					
+					ResultSet rs = pst.getGeneratedKeys();
+					rs.next();
+					c.setId(rs.getInt(1));
+					
+					return true;
+				}			
+			}
+			else
+			{
+				if (saveAddress(c.getAddress()))
+				{
+					PreparedStatement pst = conn.prepareStatement("UPDATE Customer SET cname_first = ?, cname_mi = ?, cname_last = ?, address_id = ?, phone = ?, email = ? WHERE customer_id = ? LIMIT 1;");
+					pst.setString(1, c.getFirst());
+					pst.setString(2, c.getMi());
+					pst.setString(3, c.getLast());
+					pst.setInt(4, c.getAddress().getId());
+					pst.setString(5, c.getPhone());
+					pst.setString(6, c.getEmail());
+					pst.setInt(7, c.getId());
+				
+					return 1 == pst.executeUpdate();
+				}
+			}
+		}
+		catch (NullPointerException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		return false;
+	}
+
 	public boolean saveVendor(Vendor vend)
 	{
 		try
@@ -670,6 +742,7 @@ public class DatabaseConnection {
 	{
 		try
 		{
+			beginTransaction();
 			StringBuilder query = new StringBuilder("INSERT INTO `Order` (date, filled, quantity, SKU, store_id, vendor_id) ");
 			query.append("SELECT * FROM (");
 			query.append("SELECT NOW( ) AS date, 0 AS filled, (desired_quantity - quantity - IFNULL( ");
@@ -684,14 +757,19 @@ public class DatabaseConnection {
 			System.out.println(query);
 			PreparedStatement pst = conn.prepareStatement(query.toString());
 			
+			System.out.println(store_id);
 			pst.setInt(1, store_id);
 			pst.setInt(2, store_id);
 			
-			return pst.executeUpdate();
+			int n = pst.executeUpdate();
+			endTransaction();
+			return n;
 		}
 		catch (SQLException ex)
 		{
 			ex.printStackTrace(System.err);
+			rollback();
+			endTransaction();
 			return -1;
 		}
 		
@@ -765,7 +843,7 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ?");
+			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ? AND filled = 0");
 			pst.setInt(1, storeId);
 			
 			int n = pst.executeUpdate();

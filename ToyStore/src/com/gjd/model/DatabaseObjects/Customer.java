@@ -11,6 +11,7 @@ public class Customer {
 	@Size(max = 45)
 	private String first;
 	
+	@Size(min = 1, max = 4) // allow NMN.
 	private String mi;
 	
 	@NotNull
@@ -47,6 +48,12 @@ public class Customer {
 		this.email = email;
 	}
 	
+	public Customer()
+	{
+		id = -1;
+		address = new Address();
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -67,5 +74,56 @@ public class Customer {
 	}
 	public String getEmail() {
 		return email;
+	}
+
+	public boolean isNew()
+	{
+		return id == -1;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
+	
+	public void setFirst(String first)
+	{
+		this.first = first;
+	}
+
+	
+	public void setMi(String mi)
+	{
+		this.mi = mi;
+	}
+
+	
+	public void setLast(String last)
+	{
+		this.last = last;
+	}
+
+	
+	public void setAddress(Address address)
+	{
+		this.address = address;
+	}
+
+	
+	public void setPhone(String phone)
+	{
+		this.phone = phone;
+	}
+
+	
+	public void setEmail(String email)
+	{
+		this.email = email;
+	}
+	
+	public String toString()
+	{
+		return first + " " + mi + " " + last + ": " + phone + "/" + email;
 	}
 }

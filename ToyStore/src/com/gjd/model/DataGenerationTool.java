@@ -2,6 +2,9 @@ package com.gjd.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
 import com.gjd.model.DatabaseObjects.Customer;
@@ -42,8 +45,17 @@ public class DataGenerationTool
 		DatabaseConnection conn = DatabaseConnection.getInstance();
 		pTypes = conn.getPaymentTypes();
 		
-		refillStores(conn);
-		createPurchases(conn);
+		List<String> argList = Arrays.asList(args);
+		
+		if (argList.contains("refill"))
+		{
+			refillStores(conn);
+		}
+		
+		if (argList.contains("createPurchases"))
+		{
+			createPurchases(conn);
+		}
 	}
 
 	private static void createPurchases(DatabaseConnection conn) throws SQLException
@@ -121,8 +133,10 @@ public class DataGenerationTool
 			
 			conn.endTransaction();
 			
-			conn.createAllStoreOrders(s.getId());
-			conn.fillAllOrdersForStore(s.getId());
+			if (i % 25 == 0)
+			{
+				refillStores(conn);
+			}
 			
 			System.err.println("Added transaction " + i + " with " + p.getItems().size() + " items totaling " + p.getTotal() + " at store " + p.getStore().getId() + " paid with " + p.getPaymentType().getName() + " by " + c.getFirst());
 		}

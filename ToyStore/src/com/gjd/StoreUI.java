@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.gjd.UI.Admin.AddressControl;
+import com.gjd.UI.User.UserInfoControl;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Customer;
 import com.gjd.model.DatabaseObjects.PaymentType;
@@ -28,6 +30,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -241,6 +244,17 @@ public class StoreUI extends UI
 			}
 		});
 		
+		Button register = new Button("Register Customer");
+		register.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				createLoginWindow();
+			}
+		});
+		
 
 		Button clear = new Button("Clear Cart");
 		clear.addClickListener(new ClickListener()
@@ -262,12 +276,14 @@ public class StoreUI extends UI
 		addItemContainer.addComponent(add);
 		addItemContainer.addComponent(checkout);
 		addItemContainer.addComponent(clear);
+		addItemContainer.addComponent(register);
 		addItemContainer.setSpacing(true);
 		addItemContainer.setComponentAlignment(itemSKU, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(itemQuantity, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(add, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(checkout, Alignment.BOTTOM_LEFT);
 		addItemContainer.setComponentAlignment(clear, Alignment.BOTTOM_LEFT);
+		addItemContainer.setComponentAlignment(register, Alignment.BOTTOM_LEFT);
 		
 		item = new Label("");
 		
@@ -403,5 +419,67 @@ public class StoreUI extends UI
 		checkoutOptions.center();
 		
 		getUI().addWindow(checkoutOptions);
+	}
+
+	private void createLoginWindow()
+	{
+		final Window registerWindow = new Window("Register New Customer");
+		
+		VerticalLayout layout = new VerticalLayout();
+		layout.setSpacing(true);
+		layout.setMargin(true);
+
+		Label header = new Label("<h2>Enter User Information</h2>");
+		header.setContentMode(ContentMode.HTML);
+		layout.addComponent(header);
+
+		Label basicHeader = new Label("<h3>Basic Info</h3>");
+		basicHeader.setContentMode(ContentMode.HTML);
+		layout.addComponent(basicHeader);
+		
+		final Customer c = new Customer();
+		UserInfoControl uic = new UserInfoControl(c);
+		layout.addComponent(uic);
+		
+		Label addressHeader = new Label("<h3>Address</h3>");
+		addressHeader.setContentMode(ContentMode.HTML);
+		layout.addComponent(addressHeader);
+		
+		AddressControl ac = new AddressControl(c.getAddress());
+		layout.addComponent(ac);
+		
+		Button saveCustomer = new Button("Save Customer");
+		saveCustomer.addClickListener(new ClickListener()
+		{
+			
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				System.out.println(c);
+				try
+				{
+					if (DatabaseConnection.getInstance().saveCustomer(c))
+					{
+						Notification.show("Welcome " + c.getFirst(), "Customer #" + c.getId() + " Added Successfully", Type.HUMANIZED_MESSAGE);
+						registerWindow.close();
+					}
+					else
+					{
+						Notification.show("Unable to register customer", "", Type.ERROR_MESSAGE);
+					}
+				}
+				catch (RuntimeException re)
+				{
+					Notification.show("Unable to register customer", re.getMessage(), Type.ERROR_MESSAGE);
+				}
+			}
+		});
+		
+		layout.addComponent(saveCustomer);
+
+		registerWindow.setModal(true);
+		registerWindow.center();
+		registerWindow.setContent(layout);
+		getUI().addWindow(registerWindow);
 	}
 }
