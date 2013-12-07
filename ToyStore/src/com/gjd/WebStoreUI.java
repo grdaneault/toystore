@@ -155,7 +155,9 @@ public class WebStoreUI extends UI implements Command
 				}
 				else
 				{
-					account.setText("Log Out " + customer.getFirst());
+					Notification.show("Goodbye " + customer.getFirst(), "Come back soon!", Type.HUMANIZED_MESSAGE);
+					account.setText("Log In");
+					customer = store.getGeneric();
 				}
 			}
 		});

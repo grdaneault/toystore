@@ -913,7 +913,7 @@ public class DatabaseConnection {
 		
 	}
 
-	public boolean createOrder(Purchase purchase)
+	public boolean savePurchase(Purchase purchase)
 	{
 		try
 		{
@@ -1087,6 +1087,7 @@ public class DatabaseConnection {
 		}
 		catch (SQLException ex)
 		{
+			System.out.println("Arguments: " + product.getSKU() + ", " + store.getId());
 			ex.printStackTrace();
 		}
 		return 0;

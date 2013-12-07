@@ -114,7 +114,7 @@ public class CheckoutWindow extends Window
 				
 				boolean good = true;
 				purchase.calculateTotal();
-				good = good && DatabaseConnection.getInstance().createOrder(purchase);
+				good = good && DatabaseConnection.getInstance().savePurchase(purchase);
 				
 				for (PurchaseItem pi : purchase.getItems())
 				{

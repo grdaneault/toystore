@@ -106,7 +106,7 @@ public class DataGenerationTool
 			p.setPaymentType(pTypes.get(randBetween(0, pTypes.size() - 1)));
 			
 			boolean good = true;
-			good = good && DatabaseConnection.getInstance().createOrder(p);
+			good = good && DatabaseConnection.getInstance().savePurchase(p);
 			
 			for (PurchaseItem pi : p.getItems())
 			{

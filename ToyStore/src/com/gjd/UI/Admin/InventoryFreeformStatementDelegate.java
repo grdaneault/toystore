@@ -99,6 +99,7 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 		if (filters != null)
 		{
 			String filterWhere = QueryBuilder.getWhereStringForFilters(filters, sh);
+			filterWhere = filterWhere.replace("\"price\"", "Inventory.price");
 			query.append(filterWhere);
 			
 			if (filterWhere.contains("WHERE"))
@@ -114,6 +115,7 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 		{
 			query.append(" WHERE ");
 		}
+		
 
 		query.append(" `Inventory`.store_id = ");
 		query.append(store_id);
@@ -131,6 +133,10 @@ public class InventoryFreeformStatementDelegate implements FreeformStatementDele
 				if (orderBy.getColumn().equals("SKU"))
 				{
 					orderBuffer.append(SQLUtil.escapeSQL("Product." + orderBy.getColumn()));
+				}
+				else if (orderBy.getColumn().equals("price"))
+				{
+					orderBuffer.append(SQLUtil.escapeSQL("Inventory." + orderBy.getColumn()));
 				}
 				else
 				{
