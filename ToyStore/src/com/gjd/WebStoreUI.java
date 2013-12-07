@@ -354,8 +354,12 @@ public class WebStoreUI extends UI implements Command
 		{
 			ppft.getContainerDataSource().addContainerFilter(f);
 		}
+		HorizontalLayout controls = ppft.createControls();
+		controls.setMargin(true);
+		controls.setSpacing(true);
 		
 		mainContent.addComponent(ppft);
+		mainContent.addComponent(controls);
 	}
 
 	protected void showAll()

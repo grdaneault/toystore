@@ -97,8 +97,20 @@ public class Purchase {
 		}
 	}
 	
+	/**
+	 * Does not allow duplicates.  Combines.
+	 * @param pi
+	 */
 	public void addPurchaseItem(PurchaseItem pi)
 	{
+		for (PurchaseItem pp : items)
+		{
+			if (pp.getProduct() != null && pp.getProduct().getSKU() == pi.getProduct().getSKU())
+			{
+				pp.setQuantity(pp.getQuantity() + pi.getQuantity());
+				return;
+			}
+		}
 		items.add(pi);
 	}
 	public int getTotalItems()

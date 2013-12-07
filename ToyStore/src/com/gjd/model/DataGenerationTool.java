@@ -27,7 +27,7 @@ public class DataGenerationTool
 	private static int MAX_PRODUCT_ID = 59;
 	
 	private static int MIN_STORE_ID = 1;
-	private static int MAX_STORE_ID = 7;
+	private static int MAX_STORE_ID = 8;
 	
 	private static int MIN_CUST_ID = 0;
 	private static int MAX_CUST_ID = 31;
@@ -60,7 +60,7 @@ public class DataGenerationTool
 
 	private static void createPurchases(DatabaseConnection conn) throws SQLException
 	{
-		for (int i = 0; i < NUM_PURCHASES; i++)
+		for (int i = 1; i <= NUM_PURCHASES; i++)
 		{
 			conn.beginTransaction();
 			int storeId = randBetween(MIN_STORE_ID, MAX_STORE_ID);
@@ -89,14 +89,17 @@ public class DataGenerationTool
 				while (pi == null)
 				{
 					pi = PurchaseItem.create(randBetween(MIN_PRODUCT_ID, MAX_PRODUCT_ID), s.getId(), randBetween(1, MAX_QUANTITY_PER_ITEM), p);
+					int maxQ = conn.getAvailableQuantity(pi.getProduct(), p.getStore());
+					System.out.println(maxQ + " vs " + pi.getQuantity() + " for " + pi.getProduct() + " at " + p.getStore().getId());
+					if (pi.getQuantity() > maxQ)
+					{
+						pi.setQuantity(maxQ);
+					}
+					if (pi.getQuantity() == 0)
+					{
+						pi = null;
+					}
 				}
-				
-				int maxQ = conn.getAvailableQuantity(pi.getProduct(), p.getStore());
-				if (pi.getQuantity() > maxQ)
-				{
-					pi.setQuantity(maxQ);
-				}
-				
 				p.addPurchaseItem(pi);
 			}
 			
@@ -133,7 +136,7 @@ public class DataGenerationTool
 			
 			conn.endTransaction();
 			
-			if (i % 25 == 0)
+			if (i % 35 == 0)
 			{
 				refillStores(conn);
 			}

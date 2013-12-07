@@ -98,7 +98,6 @@ public class StoreUI extends UI
 			}
 		});
 		storeSelect.setNullSelectionAllowed(false);
-		
 		storeSelect.setValue(stores.get(0));
 		
 		headerLbl.setContentMode(ContentMode.HTML);

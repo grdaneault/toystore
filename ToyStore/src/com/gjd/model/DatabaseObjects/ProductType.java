@@ -26,5 +26,10 @@ public class ProductType {
 		public boolean isNew() {
 			return id == -1;
 		}
+		
+		public String toString()
+		{
+			return name;
+		}
 	}
 

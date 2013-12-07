@@ -177,20 +177,20 @@ public class DatabaseConnection {
 	 * Gets the Store object for a given ID.
 	 * Populates the Hours the store is open and full address 
 	 * 
-	 * @param store_id
+	 * @param storeId
 	 * @return the Store
 	 * @throws SQLException
 	 */
-	public Store getStoreById(int store_id) throws SQLException
+	public Store getStoreById(int storeId) throws SQLException
 	{
 		HashMap<Character, DayHour> hours = new HashMap<Character, DayHour>();
 		
 		
-		ResultSet rs = getOneById("Store", "store_id", store_id);
+		ResultSet rs = getOneById("Store", "store_id", storeId);
 		if (rs == null) return null;
-		Store s = new Store(store_id, rs.getString("store_name"), getAddressById(rs.getInt("address_id")), getCustomerById(rs.getInt("customer_id")));
+		Store s = new Store(storeId, rs.getString("store_name"), getAddressById(rs.getInt("address_id")), getCustomerById(rs.getInt("customer_id")));
 
-		rs = getById("DayHours", "store_id", store_id);
+		rs = getById("DayHours", "store_id", storeId);
 		
 		while(rs.next())
 		{
@@ -612,6 +612,62 @@ public class DatabaseConnection {
 		
 		return top;
 	}
+	
+	public Collection<PurchaseItem> getTopSellers(int limit, int storeId)
+	{
+		Collection<PurchaseItem> top = new ArrayList<PurchaseItem>(limit);
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT PurchaseItems.SKU, product_name, SUM(quantity) as Popularity FROM PurchaseItems JOIN Purchase on PurchaseItems.purchase_id = Purchase.purchase_id JOIN Product ON PurchaseItems.SKU = Product.SKU WHERE store_id = ? GROUP BY SKU ORDER BY Popularity DESC LIMIT ?");
+			pst.setInt(1, storeId);
+			pst.setInt(2, limit);
+			
+			ResultSet rs = pst.executeQuery();
+			
+			while (rs.next())
+			{
+				Product p = new Product();
+				p.setSKU(rs.getInt("SKU"));
+				p.setName(rs.getString("product_name"));
+				top.add(new PurchaseItem(p, rs.getInt("Popularity"), null));
+			}
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		
+		return top;
+	}
+	
+	public Collection<PurchaseItem> getTopSellersByState(int limit, int stateId)
+	{
+		Collection<PurchaseItem> top = new ArrayList<PurchaseItem>(limit);
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT PurchaseItems.SKU, product_name, SUM(quantity) as Popularity FROM PurchaseItems JOIN Purchase on PurchaseItems.purchase_id = Purchase.purchase_id JOIN Product ON PurchaseItems.SKU = Product.SKU JOIN Store ON Store.store_id = Purchase.store_id JOIN Address ON Store.address_id = Address.address_id WHERE Address.state_id = ? GROUP BY SKU ORDER BY Popularity DESC LIMIT ?");
+			pst.setInt(1, stateId);
+			pst.setInt(2, limit);
+			
+			ResultSet rs = pst.executeQuery();
+			
+			while (rs.next())
+			{
+				Product p = new Product();
+				p.setSKU(rs.getInt("SKU"));
+				p.setName(rs.getString("product_name"));
+				top.add(new PurchaseItem(p, rs.getInt("Popularity"), null));
+			}
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace(System.err);
+		}
+		
+		return top;
+	}
 
 	public boolean saveProductWeight(int sku, double weight)
 	{
@@ -844,10 +900,11 @@ public class DatabaseConnection {
 		try
 		{
 			PreparedStatement pst = conn.prepareStatement("UPDATE `Order` SET filled = 1 WHERE store_id = ? AND filled = 0");
+			//PreparedStatement pst = conn.prepareStatement("SELECT * FROM `Order` WHERE filled = 0 AND store_id = ?");
 			pst.setInt(1, storeId);
-			
+			//pst.set
 			int n = pst.executeUpdate();
-			System.out.println(n + " rows updated in order fill.");
+			System.out.println(n + " rows updated in order fill for store " + storeId);
 		}
 		catch (SQLException ex)
 		{
@@ -966,6 +1023,10 @@ public class DatabaseConnection {
 			{
 				return  decrementQuantity(pi);
 			}
+			else
+			{
+				throw new RuntimeException("Too many rows updated?!");
+			}
 			
 		}
 		catch (SQLException e)
@@ -998,10 +1059,9 @@ public class DatabaseConnection {
 	{
 		try
 		{
-			PreparedStatement pst = conn.prepareStatement("UPDATE Inventory SET quantity = quantity - ? WHERE SKU = ? AND store_id = ?;");
-			pst.setInt(1, pi.getQuantity());
-			pst.setInt(2, pi.getProduct().getSKU());
-			pst.setInt(3, pi.getPurchase().getStore().getId());
+			PreparedStatement pst = conn.prepareStatement("UPDATE Inventory SET quantity = (quantity - " + pi.getQuantity() + ") WHERE SKU = ? AND store_id = ? LIMIT 1 ;");
+			pst.setInt(1, pi.getProduct().getSKU());
+			pst.setInt(2, pi.getPurchase().getStore().getId());
 			
 			return 1 == pst.executeUpdate();
 			
@@ -1072,5 +1132,134 @@ public class DatabaseConnection {
 		}
 		
 		return null;
+	}
+
+	public Collection<Purchase> getTopStores(int limit)
+	{
+		Collection<Purchase> stores = new ArrayList<Purchase>(limit);
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement("SELECT store_id, SUM(total) as total FROM Purchase GROUP BY store_id ORDER BY total DESC LIMIT ?");
+			pst.setInt(1,  limit);
+			
+			ResultSet rs = pst.executeQuery();
+			while(rs.next())
+			{
+				stores.add(new Purchase(0, getStoreById(rs.getInt("store_id")), null, null, rs.getDouble("total"), null));
+			}
+					
+		}
+		catch (SQLException ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		return stores;
+	}
+	
+	/**
+	 * Computes the stores where one brand outperforms another
+	 * 
+	 * (Note!  Horrid bastardization of the Purchase object! Do not use for real data)
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Collection<Purchase> getStoresWhereBrandXMoreThanY(Brand x, Brand y)
+	{
+		Collection<Purchase> stores = new ArrayList<Purchase>();
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT x.store_id, x.brand_x, y.brand_y ");
+		query.append("FROM ( ");
+
+		query.append("SELECT SUM( quantity ) brand_x, brand_name, store_id ");
+		query.append("FROM PurchaseItems ");
+		query.append("JOIN Product ON PurchaseItems.SKU = Product.SKU ");
+		query.append("JOIN Brand ON Brand.brand_id = Product.brand_id ");
+		query.append("JOIN Purchase ON Purchase.purchase_id = PurchaseItems.purchase_id ");
+		query.append("WHERE Product.brand_id = ? ");
+		query.append("GROUP BY store_id ");
+		query.append(") AS x, ( ");
+
+		query.append("SELECT SUM( quantity ) brand_y, brand_name, store_id ");
+		query.append("FROM PurchaseItems ");
+		query.append("JOIN Product ON PurchaseItems.SKU = Product.SKU ");
+		query.append("JOIN Brand ON Brand.brand_id = Product.brand_id ");
+		query.append("JOIN Purchase ON Purchase.purchase_id = PurchaseItems.purchase_id ");
+		query.append("WHERE Product.brand_id = ? ");
+		query.append("GROUP BY store_id ");
+		query.append(") AS y ");
+		
+		query.append("WHERE x.store_id = y.store_id ");
+		query.append("AND x.brand_x > y.brand_y ");
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement(query.toString());
+			pst.setInt(1,  x.getId());
+			pst.setInt(2,  y.getId());
+			
+			ResultSet rs = pst.executeQuery();
+			while(rs.next())
+			{
+				Purchase p = new Purchase(0, getStoreById(rs.getInt("store_id")), null, null, 0, null);
+				PurchaseItem xpi = new PurchaseItem(null, rs.getInt("brand_x"), p);
+				PurchaseItem ypi = new PurchaseItem(null, rs.getInt("brand_y"), p);
+				p.addPurchaseItem(xpi);
+				p.addPurchaseItem(ypi);
+				
+				stores.add(p);
+			}
+			
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		
+		return stores;
+		
+	}
+	
+	public Collection<ProductType> getCommonAssociatedProductTypes(int SKU)
+	{
+		ArrayList<ProductType> types = new ArrayList<ProductType>(3);
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT Product.type_id, ProductType.type_name, SUM( quantity ) freq ");
+		query.append("FROM PurchaseItems ");
+		query.append("JOIN Product ON PurchaseItems.SKU = Product.SKU ");
+		query.append("JOIN ProductType ON Product.type_id = ProductType.type_id ");
+		query.append("WHERE purchase_id ");
+		query.append("IN ( ");
+		query.append(" ");
+		query.append("SELECT purchase_id ");
+		query.append("FROM PurchaseItems ");
+		query.append("WHERE PurchaseItems.SKU = ? ");
+		query.append(") ");
+		query.append("GROUP BY type_id ");
+		query.append("ORDER BY freq DESC  ");
+		query.append("LIMIT 3 ");
+		
+		try
+		{
+			PreparedStatement pst = conn.prepareStatement(query.toString());
+			pst.setInt(1,  SKU);
+			
+			ResultSet rs = pst.executeQuery();
+			
+			while(rs.next())
+			{
+				types.add(new ProductType(rs.getInt("type_id"), rs.getString("type_name")));
+			}
+			
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return types;
 	}
 }

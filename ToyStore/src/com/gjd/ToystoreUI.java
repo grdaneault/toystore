@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import com.gjd.UI.Admin.BrandManager;
 import com.gjd.UI.Admin.LoginWindow;
 import com.gjd.UI.Admin.ProductTypeManager;
+import com.gjd.UI.Admin.ReportingLayout;
 import com.gjd.UI.Admin.StoreManager;
 import com.gjd.UI.Admin.VendorAccessManager;
 import com.gjd.UI.Admin.VendorControl;
@@ -14,6 +15,7 @@ import com.gjd.UI.User.SuccessfulLoginListener;
 import com.gjd.model.DatabaseConnection;
 import com.gjd.model.DatabaseObjects.Store;
 import com.gjd.model.DatabaseObjects.Vendor;
+import com.google.gwt.dev.shell.remoteui.RemoteMessageProto.Message.Request.ViewerRequest.AddLog.MainLog;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.util.sqlcontainer.SQLContainer;
@@ -23,8 +25,12 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Table;
@@ -57,6 +63,8 @@ public class ToystoreUI extends UI implements Command {
 	private MenuItem vendorAdminLogout;
 
 	private MenuItem vendorAdminEdit;
+
+	private MenuItem reports;
 	
 	@Override
 	protected void init(VaadinRequest request) {
@@ -85,6 +93,8 @@ public class ToystoreUI extends UI implements Command {
 		
 		brandAdmin = menu.addItem("Brands", this);
 		productTypeAdmin = menu.addItem("Product Types", this);
+		reports = menu.addItem("Reports", this);
+
 		webStore = menu.addItem("Launch Web Store", this);
 		physicalStore = menu.addItem("Launch POS", this);
 		
@@ -95,12 +105,7 @@ public class ToystoreUI extends UI implements Command {
 		layout.addComponent(headerLbl);
 		layout.addComponent(menu);
 		layout.addComponent(mainContent);
-		
-		/*ProductTable products = new ProductTable();
-		products.setPageLength(10);
-		layout.addComponent(products);
-		layout.addComponent(products.createControls());*/
-		
+
 	}
 
 	@Override
@@ -141,6 +146,15 @@ public class ToystoreUI extends UI implements Command {
 		{
 			getPage().setLocation("PhysicalStore");
 		}
+		else if (selectedItem == reports)
+		{
+			createReportsList();
+		}
+	}
+
+	private void createReportsList()
+	{
+		mainContent.addComponent(new ReportingLayout());
 	}
 
 	private void createProductTypeTable()
