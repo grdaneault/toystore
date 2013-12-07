@@ -25,7 +25,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -260,7 +259,6 @@ public class ReportingLayout extends VerticalLayout
 
 			private static final long serialVersionUID = 6532833718745415543L;
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event)
 			{

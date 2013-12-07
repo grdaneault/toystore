@@ -26,7 +26,10 @@ public class DayHour implements Serializable
 	
 	private boolean isNew = false;
 	
+	//Used by vaadin behind the scenes...
+	@SuppressWarnings("unused")
 	private String open_string;
+	@SuppressWarnings("unused")
 	private String close_string;
 	
 	public Store getStore() {

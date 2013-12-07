@@ -10,8 +10,6 @@ import com.gjd.UI.User.CheckoutWindow;
 import com.gjd.UI.User.PurchaseTable;
 import com.gjd.UI.User.RegisterWindow;
 import com.gjd.model.DatabaseConnection;
-import com.gjd.model.DatabaseObjects.Customer;
-import com.gjd.model.DatabaseObjects.PaymentType;
 import com.gjd.model.DatabaseObjects.Product;
 import com.gjd.model.DatabaseObjects.Purchase;
 import com.gjd.model.DatabaseObjects.PurchaseItem;
@@ -39,7 +37,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")
 @Theme("toystore")

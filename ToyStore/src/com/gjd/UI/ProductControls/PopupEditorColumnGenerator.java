@@ -33,7 +33,6 @@ public class PopupEditorColumnGenerator implements ColumnGenerator
 	public Object generateCell(final CustomTable source, final Object itemId, final Object columnId)
 	{
 		final String start = source.getItem(itemId).getItemProperty(columnId).getValue().toString();
-		final int sku = (Integer)source.getItem(itemId).getItemProperty("SKU").getValue();
 		PopupView editor = new PopupView(new Content()
 		{
 			private static final long serialVersionUID = 8497887992724226734L;

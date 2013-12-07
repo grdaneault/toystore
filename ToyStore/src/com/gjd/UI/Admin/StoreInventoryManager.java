@@ -103,6 +103,7 @@ public class StoreInventoryManager extends VerticalLayout
 			
 			private static final long serialVersionUID = 835592206330134419L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event)
 			{

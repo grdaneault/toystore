@@ -3,7 +3,6 @@ package com.gjd.model;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -29,7 +28,6 @@ public class DataGenerationTool
 	private static int MIN_STORE_ID = 1;
 	private static int MAX_STORE_ID = 8;
 	
-	private static int MIN_CUST_ID = 0;
 	private static int MAX_CUST_ID = 31;
 	
 	private static ArrayList<PaymentType> pTypes;
