@@ -156,18 +156,20 @@ public class StoreUI extends UI
 			public void buttonClick(ClickEvent event)
 			{
 				Product product = DatabaseConnection.getInstance().getProductByIdForStore(Integer.valueOf(itemSKU.getValue()), store.getId());
-				System.out.println(product + " FROM STORE " + store);
-				int quantity = Integer.valueOf(itemQuantity.getValue());
-				PurchaseItem pi = new PurchaseItem(product, quantity, purchase);
-				purchase.addPurchaseItem(pi);
-				((BeanItemContainer<PurchaseItem>)order.getContainerDataSource()).addBean(pi);
-				itemSKU.setValue("");
-				itemSKU.focus();
-				itemQuantity.setValue("1");
-				
-				purchase.calculateTotal();
-				order.setColumnFooter("quantity", "" + purchase.getTotalItems());
-				order.setColumnFooter("total price", "" + purchase.getTotal());
+				if (product != null)
+				{
+					System.out.println(product + " FROM STORE " + store);
+					int quantity = Integer.valueOf(itemQuantity.getValue());
+					PurchaseItem pi = new PurchaseItem(product, quantity, purchase);
+					purchase.addPurchaseItem(pi);
+					((BeanItemContainer<PurchaseItem>)order.getContainerDataSource()).addBean(pi);
+					itemSKU.setValue("");
+					itemSKU.focus();
+					itemQuantity.setValue("1");
+					purchase.calculateTotal();
+					order.setColumnFooter("quantity", "" + purchase.getTotalItems());
+					order.setColumnFooter("total price", "" + purchase.getTotal());
+				}
 				
 			}
 		});

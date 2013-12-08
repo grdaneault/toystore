@@ -103,15 +103,18 @@ public class Purchase {
 	 */
 	public void addPurchaseItem(PurchaseItem pi)
 	{
-		for (PurchaseItem pp : items)
+		if (pi.getProduct() != null)
 		{
-			if (pp.getProduct() != null && pp.getProduct().getSKU() == pi.getProduct().getSKU())
+			for (PurchaseItem pp : items)
 			{
-				pp.setQuantity(pp.getQuantity() + pi.getQuantity());
-				return;
+				if (pp.getProduct() != null && pp.getProduct().getSKU() == pi.getProduct().getSKU())
+				{
+					pp.setQuantity(pp.getQuantity() + pi.getQuantity());
+					return;
+				}
 			}
+			items.add(pi);
 		}
-		items.add(pi);
 	}
 	public int getTotalItems()
 	{
